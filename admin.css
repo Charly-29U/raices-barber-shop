@@ -912,6 +912,7 @@ body.admin-body {
   flex-direction: column;
   justify-content: flex-end;
   padding: 12px;
+  pointer-events: none;
 }
 
 .gal-title {
@@ -941,6 +942,7 @@ body.admin-body {
   align-items: center;
   justify-content: center;
   transition: var(--transition);
+  z-index: 20;
 }
 
 .btn-gal-del:hover {

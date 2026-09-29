@@ -866,7 +866,24 @@ async function eliminarBarbero(id) {
 // ==========================================================================
 function getGaleria() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.GALERIA) || "[]");
+    const raw = localStorage.getItem(STORAGE_KEYS.GALERIA);
+    let items = raw ? JSON.parse(raw) : DEFAULTS.galeria;
+    if (!Array.isArray(items)) items = DEFAULTS.galeria;
+    
+    // Auto-reparar elementos con ID inválido (NaN, undefined, null)
+    let corregido = false;
+    items = items.map((item, idx) => {
+      if (!item.id || item.id === "NaN" || Number.isNaN(item.id)) {
+        corregido = true;
+        return { ...item, id: Date.now() + idx };
+      }
+      return item;
+    });
+
+    if (corregido) {
+      localStorage.setItem(STORAGE_KEYS.GALERIA, JSON.stringify(items));
+    }
+    return items;
   } catch (e) {
     return DEFAULTS.galeria;
   }
@@ -886,18 +903,21 @@ function renderizarGaleriaAdmin() {
     return;
   }
 
-  grid.innerHTML = galeria.map(item => `
+  grid.innerHTML = galeria.map((item, index) => {
+    const safeId = String(item.id !== undefined && item.id !== null ? item.id : `gal_${Date.now()}_${index}`);
+    return `
     <div class="gal-card">
-      <img src="${item.imagen}" alt="${item.titulo}">
-      <button class="btn-gal-del" onclick="eliminarFotoGaleria(${item.id})" title="Eliminar de Galería">
-        <i class="fa-solid fa-trash"></i>
-      </button>
+      <img src="${item.imagen}" alt="${item.titulo || 'Corte'}">
       <div class="gal-overlay">
         <span class="gal-badge">${item.badge || 'Corte'}</span>
-        <h5 class="gal-title">${item.titulo}</h5>
+        <h5 class="gal-title">${item.titulo || 'Estilo'}</h5>
       </div>
+      <button type="button" class="btn-gal-del" onclick="eliminarFotoGaleria('${safeId}')" title="Eliminar de Galería">
+        <i class="fa-solid fa-trash"></i>
+      </button>
     </div>
-  `).join("");
+  `;
+  }).join("");
 }
 
 function abrirModalGaleria() {
@@ -922,7 +942,8 @@ function guardarFotoGaleria(e) {
   }
 
   const galeria = getGaleria();
-  const nuevoId = galeria.length > 0 ? Math.max(...galeria.map(g => g.id)) + 1 : 1;
+  // ID único garantizado basado en timestamp
+  const nuevoId = Date.now();
   galeria.unshift({ id: nuevoId, titulo, badge, imagen });
 
   setGaleria(galeria);
@@ -932,6 +953,8 @@ function guardarFotoGaleria(e) {
 }
 
 async function eliminarFotoGaleria(id) {
+  if (id === undefined || id === null) return;
+
   const ok = await mostrarConfirmacionVIP({
     titulo: "¿Eliminar Fotografía?",
     mensaje: "¿Deseas eliminar esta fotografía de la galería de estilos?",
@@ -941,11 +964,16 @@ async function eliminarFotoGaleria(id) {
   if (!ok) return;
 
   let galeria = getGaleria();
-  galeria = galeria.filter(g => g.id !== id);
+  galeria = galeria.filter(g => String(g.id) !== String(id));
   setGaleria(galeria);
   renderizarGaleriaAdmin();
   mostrarAdminToast("Fotografía eliminada de la galería", "info");
 }
+
+window.eliminarFotoGaleria = eliminarFotoGaleria;
+window.abrirModalGaleria = abrirModalGaleria;
+window.cerrarModalGaleria = cerrarModalGaleria;
+window.guardarFotoGaleria = guardarFotoGaleria;
 
 // ==========================================================================
 // TAB 5: CONFIGURACIÓN DE CUENTAS BANCARIAS

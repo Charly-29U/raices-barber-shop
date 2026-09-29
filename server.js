@@ -25,7 +25,93 @@ const {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configuración de Supabase
+// Configuración de PostgreSQL (Render PostgreSQL o conexión directa)
+const { Pool } = require('pg');
+const DATABASE_URL = process.env.DATABASE_URL || '';
+let pgPool = null;
+
+if (DATABASE_URL) {
+  try {
+    pgPool = new Pool({
+      connectionString: DATABASE_URL,
+      ssl: DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
+    });
+    console.log('⚡ [RENDER POSTGRESQL] Pool conectado a la base de datos.');
+    inicializarTablasPostgres();
+  } catch (err) {
+    console.error('❌ [RENDER POSTGRESQL] Error configurando pool:', err.message);
+  }
+}
+
+async function inicializarTablasPostgres() {
+  if (!pgPool) return;
+  try {
+    await pgPool.query(`
+      CREATE TABLE IF NOT EXISTS citas (
+        id TEXT PRIMARY KEY,
+        codigo TEXT,
+        cliente JSONB NOT NULL,
+        servicio TEXT NOT NULL,
+        barbero TEXT NOT NULL,
+        fecha DATE NOT NULL,
+        hora TEXT NOT NULL,
+        total NUMERIC NOT NULL DEFAULT 0,
+        anticipo_pagado NUMERIC NOT NULL DEFAULT 0,
+        saldo_pendiente NUMERIC NOT NULL DEFAULT 0,
+        comprobante TEXT,
+        estado TEXT NOT NULL DEFAULT 'Pendiente',
+        notas TEXT,
+        recordatorio_enviado BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS servicios (
+        id TEXT PRIMARY KEY,
+        nombre TEXT NOT NULL,
+        descripcion TEXT,
+        precio NUMERIC NOT NULL,
+        anticipo NUMERIC NOT NULL,
+        duracion INTEGER NOT NULL DEFAULT 45,
+        imagen TEXT,
+        activo BOOLEAN DEFAULT TRUE,
+        orden INTEGER DEFAULT 0,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS barberos (
+        id TEXT PRIMARY KEY,
+        nombre TEXT NOT NULL,
+        rol TEXT,
+        especialidad TEXT,
+        foto TEXT,
+        activo BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS bancos (
+        id TEXT PRIMARY KEY,
+        banco TEXT NOT NULL,
+        numero TEXT NOT NULL,
+        titular TEXT NOT NULL,
+        tipo TEXT,
+        instrucciones TEXT,
+        activo BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS configuracion (
+        clave TEXT PRIMARY KEY,
+        valor JSONB NOT NULL,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+    console.log('✅ [RENDER POSTGRESQL] ¡Tablas creadas y verificadas automáticamente en Render!');
+  } catch (err) {
+    console.error('❌ [RENDER POSTGRESQL] Error creando tablas:', err.message);
+  }
+}
+
+// Configuración de Supabase (opcional como alternativa)
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_KEY = process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 let supabase = null;
@@ -37,8 +123,8 @@ if (SUPABASE_URL && SUPABASE_KEY) {
   } catch (err) {
     console.error('❌ [SUPABASE] Error iniciando cliente:', err.message);
   }
-} else {
-  console.log('ℹ️ [SUPABASE] Variables SUPABASE_URL o SUPABASE_KEY no detectadas. Usando almacenamiento local.');
+} else if (!DATABASE_URL) {
+  console.log('ℹ️ [BASE DE DATOS] Operando con almacenamiento local. Esperando DATABASE_URL de Render.');
 }
 
 // Configuración de Middlewares
@@ -387,7 +473,7 @@ app.post('/api/whatsapp/send', async (req, res) => {
   }
 });
 
-// 6. Registrar Cita y Enviar Confirmación Automática (Supabase + Local)
+// 6. Registrar Cita y Enviar Confirmación Automática (PostgreSQL + Supabase + Local)
 app.post('/api/citas/registrar', async (req, res) => {
   const nuevaCita = req.body;
   if (!nuevaCita || !nuevaCita.id) {
@@ -395,7 +481,47 @@ app.post('/api/citas/registrar', async (req, res) => {
   }
 
   try {
-    // 1. Guardar en Supabase (PostgreSQL) si está disponible
+    // 1. Guardar en Render PostgreSQL si está disponible
+    if (pgPool) {
+      try {
+        await pgPool.query(`
+          INSERT INTO citas (id, codigo, cliente, servicio, barbero, fecha, hora, total, anticipo_pagado, saldo_pendiente, comprobante, estado, notas, recordatorio_enviado)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+          ON CONFLICT (id) DO UPDATE SET
+            cliente = EXCLUDED.cliente,
+            servicio = EXCLUDED.servicio,
+            barbero = EXCLUDED.barbero,
+            fecha = EXCLUDED.fecha,
+            hora = EXCLUDED.hora,
+            total = EXCLUDED.total,
+            anticipo_pagado = EXCLUDED.anticipo_pagado,
+            saldo_pendiente = EXCLUDED.saldo_pendiente,
+            comprobante = EXCLUDED.comprobante,
+            estado = EXCLUDED.estado,
+            notas = EXCLUDED.notas;
+        `, [
+          String(nuevaCita.id),
+          String(nuevaCita.codigo || nuevaCita.id),
+          JSON.stringify(nuevaCita.cliente || {}),
+          String(nuevaCita.servicio || ''),
+          String(nuevaCita.barbero || ''),
+          nuevaCita.fecha,
+          String(nuevaCita.hora || ''),
+          Number(nuevaCita.total || 0),
+          Number(nuevaCita.anticipoPagado || 0),
+          Number(nuevaCita.saldoPendiente || 0),
+          nuevaCita.comprobante || null,
+          nuevaCita.estado || 'Pendiente',
+          nuevaCita.notas || '',
+          false
+        ]);
+        console.log(`✅ [RENDER POSTGRESQL] Cita #${nuevaCita.id} sincronizada en la base de datos.`);
+      } catch (errPg) {
+        console.error('Error insertando en PostgreSQL:', errPg.message);
+      }
+    }
+
+    // 2. Guardar en Supabase si está disponible
     if (supabase) {
       try {
         await supabase.from('citas').upsert({
@@ -414,13 +540,13 @@ app.post('/api/citas/registrar', async (req, res) => {
           notas: nuevaCita.notas || '',
           recordatorio_enviado: false
         });
-        console.log(`✅ [SUPABASE] Cita #${nuevaCita.id} sincronizada en la nube.`);
+        console.log(`✅ [SUPABASE] Cita #${nuevaCita.id} sincronizada en Supabase.`);
       } catch (errSupa) {
         console.error('Error insertando en Supabase:', errSupa.message);
       }
     }
 
-    // 2. Respaldo en archivo local
+    // 3. Respaldo en archivo local
     let citas = [];
     if (fs.existsSync(CITAS_FILE)) {
       citas = JSON.parse(fs.readFileSync(CITAS_FILE, 'utf8') || '[]');
@@ -434,7 +560,7 @@ app.post('/api/citas/registrar', async (req, res) => {
     }
     fs.writeFileSync(CITAS_FILE, JSON.stringify(citas, null, 2));
 
-    // 3. Notificación de WhatsApp inmediata
+    // 4. Notificación de WhatsApp inmediata
     if (botConfig.enviarConfirmacionInmediata && connectionStatus === 'conectado' && nuevaCita.cliente?.telefono) {
       const partes = nuevaCita.fecha ? nuevaCita.fecha.split('-') : ['--', '--', '----'];
       const fechaBonita = `${partes[2]}/${partes[1]}/${partes[0]}`;
@@ -466,7 +592,7 @@ app.post('/api/citas/registrar', async (req, res) => {
       }
     }
 
-    res.json({ success: true, message: 'Cita registrada con éxito en Supabase y localmente.' });
+    res.json({ success: true, message: 'Cita registrada con éxito en PostgreSQL y localmente.' });
   } catch (err) {
     console.error('Error registrando cita en server:', err);
     res.status(500).json({ success: false, error: err.message });
@@ -478,24 +604,39 @@ app.post('/api/citas/sincronizar', async (req, res) => {
   const { citas } = req.body;
   if (Array.isArray(citas)) {
     try {
-      if (supabase && citas.length > 0) {
+      if (pgPool && citas.length > 0) {
         for (const c of citas) {
-          await supabase.from('citas').upsert({
-            id: String(c.id),
-            codigo: String(c.codigo || c.id),
-            cliente: c.cliente || {},
-            servicio: String(c.servicio || ''),
-            barbero: String(c.barbero || ''),
-            fecha: c.fecha,
-            hora: String(c.hora || ''),
-            total: Number(c.total || 0),
-            anticipo_pagado: Number(c.anticipoPagado || 0),
-            saldo_pendiente: Number(c.saldoPendiente || 0),
-            comprobante: c.comprobante || null,
-            estado: c.estado || 'Pendiente',
-            notas: c.notas || '',
-            recordatorio_enviado: !!c.recordatorioEnviado
-          });
+          await pgPool.query(`
+            INSERT INTO citas (id, codigo, cliente, servicio, barbero, fecha, hora, total, anticipo_pagado, saldo_pendiente, comprobante, estado, notas, recordatorio_enviado)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+            ON CONFLICT (id) DO UPDATE SET
+              cliente = EXCLUDED.cliente,
+              servicio = EXCLUDED.servicio,
+              barbero = EXCLUDED.barbero,
+              fecha = EXCLUDED.fecha,
+              hora = EXCLUDED.hora,
+              total = EXCLUDED.total,
+              anticipo_pagado = EXCLUDED.anticipo_pagado,
+              saldo_pendiente = EXCLUDED.saldo_pendiente,
+              comprobante = EXCLUDED.comprobante,
+              estado = EXCLUDED.estado,
+              notas = EXCLUDED.notas;
+          `, [
+            String(c.id),
+            String(c.codigo || c.id),
+            JSON.stringify(c.cliente || {}),
+            String(c.servicio || ''),
+            String(c.barbero || ''),
+            c.fecha,
+            String(c.hora || ''),
+            Number(c.total || 0),
+            Number(c.anticipoPagado || 0),
+            Number(c.saldoPendiente || 0),
+            c.comprobante || null,
+            c.estado || 'Pendiente',
+            c.notas || '',
+            !!c.recordatorioEnviado
+          ]);
         }
       }
       fs.writeFileSync(CITAS_FILE, JSON.stringify(citas, null, 2));
@@ -507,8 +648,36 @@ app.post('/api/citas/sincronizar', async (req, res) => {
   res.status(400).json({ success: false, error: 'Formato inválido' });
 });
 
-// 8. Obtener Citas (Supabase primero, fallback a local)
+// 8. Obtener Citas (Render PostgreSQL -> Supabase -> Local)
 app.get('/api/citas', async (req, res) => {
+  if (pgPool) {
+    try {
+      const resPg = await pgPool.query('SELECT * FROM citas ORDER BY created_at DESC');
+      if (resPg.rows && resPg.rows.length > 0) {
+        const citasFormateadas = resPg.rows.map(c => ({
+          id: c.id,
+          codigo: c.codigo || c.id,
+          cliente: typeof c.cliente === 'string' ? JSON.parse(c.cliente) : c.cliente,
+          servicio: c.servicio,
+          barbero: c.barbero,
+          fecha: c.fecha ? new Date(c.fecha).toISOString().slice(0, 10) : '',
+          hora: c.hora,
+          total: Number(c.total || 0),
+          anticipoPagado: Number(c.anticipo_pagado || 0),
+          saldoPendiente: Number(c.saldo_pendiente || 0),
+          comprobante: c.comprobante,
+          estado: c.estado || 'Pendiente',
+          notas: c.notas || '',
+          recordatorioEnviado: c.recordatorio_enviado,
+          created_at: c.created_at
+        }));
+        return res.json(citasFormateadas);
+      }
+    } catch (e) {
+      console.error('Error leyendo de PostgreSQL:', e.message);
+    }
+  }
+
   if (supabase) {
     try {
       const { data, error } = await supabase.from('citas').select('*').order('created_at', { ascending: false });
@@ -551,6 +720,14 @@ app.put('/api/citas/:id/estado', async (req, res) => {
   const { estado } = req.body;
   if (!id || !estado) {
     return res.status(400).json({ success: false, error: 'Faltan parámetros' });
+  }
+
+  if (pgPool) {
+    try {
+      await pgPool.query('UPDATE citas SET estado = $1 WHERE id = $2', [estado, id]);
+    } catch (e) {
+      console.error('Error actualizando en PostgreSQL:', e.message);
+    }
   }
 
   if (supabase) {
@@ -640,7 +817,21 @@ app.post('/api/bancos', async (req, res) => {
   res.json({ success: true, banco });
 });
 
-// 8f. Estado Supabase
+// 8f. Estado de la Base de Datos (Render PostgreSQL / Supabase)
+app.get('/api/db/status', (req, res) => {
+  res.json({
+    postgresql: {
+      connected: !!pgPool,
+      type: 'Render PostgreSQL'
+    },
+    supabase: {
+      connected: !!supabase,
+      url: SUPABASE_URL ? `${SUPABASE_URL.slice(0, 18)}...` : null
+    },
+    modo: pgPool ? 'Render PostgreSQL' : (supabase ? 'Supabase Cloud' : 'Almacenamiento Local')
+  });
+});
+
 app.get('/api/supabase/status', (req, res) => {
   res.json({
     connected: !!supabase,

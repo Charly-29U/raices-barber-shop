@@ -330,16 +330,23 @@ body {
   gap: 8px;
   padding: 9px 18px;
   background: var(--gold-gradient);
-  color: #080808;
+  color: #000000 !important;
+  text-shadow: none !important;
   text-decoration: none;
   font-family: var(--font-luxury);
-  font-weight: 700;
+  font-weight: 800 !important;
   font-size: 0.82rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   border-radius: var(--radius-sm);
   transition: var(--transition);
   box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+}
+
+.btn-gold-nav span,
+.btn-gold-nav i {
+  color: #000000 !important;
+  font-weight: 800 !important;
 }
 
 .btn-gold-nav:hover {
@@ -419,9 +426,13 @@ body {
   border-radius: var(--radius-md);
   padding: 16px 24px;
   max-width: 680px;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 auto 36px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px var(--gold-glow);
   text-align: left;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .policy-icon {
@@ -460,10 +471,11 @@ body {
   gap: 10px;
   padding: 15px 32px;
   background: var(--gold-gradient);
-  color: #060606;
+  color: #000000 !important;
+  text-shadow: none !important;
   text-decoration: none;
   font-family: var(--font-luxury);
-  font-weight: 800;
+  font-weight: 800 !important;
   font-size: 0.95rem;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -472,6 +484,12 @@ body {
   box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
   border: none;
   cursor: pointer;
+}
+
+.btn-gold-primary span,
+.btn-gold-primary i {
+  color: #000000 !important;
+  font-weight: 800 !important;
 }
 
 .btn-gold-primary:hover {
@@ -1674,9 +1692,10 @@ body {
   gap: 8px;
   padding: 12px 26px;
   background: var(--gold-gradient);
-  color: #060606;
+  color: #000000 !important;
+  text-shadow: none !important;
   font-family: var(--font-luxury);
-  font-weight: 700;
+  font-weight: 800 !important;
   font-size: 0.88rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -1685,6 +1704,12 @@ body {
   cursor: pointer;
   transition: var(--transition);
   box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.btn-gold-next span,
+.btn-gold-next i {
+  color: #000000 !important;
+  font-weight: 800 !important;
 }
 
 .btn-gold-next:hover {
@@ -2553,9 +2578,59 @@ body {
 }
 
 @media (max-width: 768px) {
+  /* Prevent horizontal blowout */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* Compact Luxury Header */
+  .nav-container {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .brand-cursive {
+    font-size: 1.65rem;
+  }
+
+  .brand-sub {
+    font-size: 0.58rem;
+    letter-spacing: 2px;
+  }
+
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+
+  .btn-gold-nav {
+    padding: 7px 12px;
+    font-size: 0.74rem;
+    letter-spacing: 1px;
+    gap: 6px;
+  }
+
+  .mobile-toggle {
+    display: block;
+    padding: 6px 10px;
+    font-size: 1.15rem;
+  }
+
   .nav-menu {
     position: fixed;
-    top: 75px;
+    top: 65px;
     left: 0;
     width: 100%;
     background: rgba(10, 10, 10, 0.98);
@@ -2565,59 +2640,260 @@ body {
     border-bottom: 1px solid var(--gold-border);
     transform: translateY(-150%);
     transition: var(--transition);
+    z-index: 999;
   }
 
   .nav-menu.open {
     transform: translateY(0);
   }
 
-  .mobile-toggle {
-    display: block;
+  /* Hero Section */
+  .hero-section {
+    padding: 85px 16px 40px;
+    min-height: auto;
+  }
+
+  .hero-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .hero-badge {
+    padding: 5px 14px;
+    font-size: 0.74rem;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
   }
 
   .hero-cursive-title {
-    font-size: 2.8rem;
+    font-size: 2.6rem;
+    line-height: 1.15;
+    word-break: break-word;
+    margin-bottom: 14px;
   }
 
   .hero-tagline {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    margin-bottom: 22px;
   }
 
   .hero-policy-box {
     flex-direction: column;
+    text-align: left;
+    padding: 16px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 0 auto 24px;
+    word-break: break-word;
+  }
+
+  .policy-icon {
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+
+  .policy-details h4 {
+    font-size: 0.98rem;
+  }
+
+  .policy-details p {
+    font-size: 0.85rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .hero-buttons .btn-gold-primary,
+  .hero-buttons .btn-gold-secondary {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 13px 20px;
+    font-size: 0.88rem;
+  }
+
+  .hero-stats {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 8px;
+    gap: 6px;
+    border-radius: 18px;
+  }
+
+  .stat-item {
     text-align: center;
   }
 
+  .stat-number {
+    font-size: 1.15rem;
+  }
+
+  .stat-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-divider {
+    height: 22px;
+  }
+
+  /* Scheduler & Wizard */
+  .scheduler-section {
+    padding: 50px 14px;
+  }
+
+  .booking-steps-bar {
+    max-width: 100%;
+    margin-bottom: 26px;
+    padding: 0 4px;
+  }
+
+  .step-circle {
+    width: 36px;
+    height: 36px;
+    font-size: 0.88rem;
+  }
+
+  .step-title {
+    font-size: 0.62rem;
+    letter-spacing: 0;
+  }
+
+  .step-line {
+    margin: 0 4px -18px;
+  }
+
   .booking-form-area {
-    padding: 24px 18px;
+    padding: 22px 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .step-heading {
+    font-size: 1.25rem;
   }
 
   .client-info-form .form-row {
     grid-template-columns: 1fr;
   }
 
-  .booking-steps-bar {
-    margin-bottom: 30px;
-  }
-
-  .step-circle {
-    width: 36px;
-    height: 36px;
-    font-size: 0.9rem;
-  }
-
-  .step-title {
-    font-size: 0.65rem;
+  .services-preview-grid {
+    grid-template-columns: 1fr;
   }
 
   .footer-container {
     grid-template-columns: 1fr;
+    gap: 28px;
   }
 
   .bottom-flex {
     flex-direction: column;
     gap: 12px;
     text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .brand-cursive {
+    font-size: 1.45rem;
+  }
+
+  .brand-sub {
+    font-size: 0.52rem;
+  }
+
+  .btn-gold-nav {
+    padding: 6px 10px;
+    font-size: 0.7rem;
+  }
+
+  .hero-cursive-title {
+    font-size: 2.15rem;
+  }
+
+  .hero-tagline {
+    font-size: 0.88rem;
+  }
+
+  .step-title {
+    display: none;
+  }
+
+  .step-line {
+    margin: 0 4px 0;
+  }
+
+  .step-indicator {
+    gap: 0;
+  }
+
+  .step-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .step-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .service-opt-card {
+    padding: 12px 10px;
+    gap: 8px;
+  }
+
+  .service-opt-info h4 {
+    font-size: 0.95rem;
+  }
+
+  .barbers-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .barber-avatar {
+    width: 60px;
+    height: 60px;
+  }
+
+  .barber-name {
+    font-size: 0.85rem;
+  }
+
+  .barber-role {
+    font-size: 0.68rem;
+  }
+
+  .horarios-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .ticket-card {
+    padding: 18px 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .btn-gold-nav span {
+    display: none;
+  }
+  .btn-gold-nav::after {
+    content: "50%";
   }
 }
 

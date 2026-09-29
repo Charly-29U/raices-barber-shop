@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raíces Barber Shop | Agendador Exclusivo de Citas</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Google Fonts: Cursiva y Elegancia de Lujo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@400;600;700;900&family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css?v=6.5">
+</head>
+<body>
+
+  <!-- Fullscreen Background Video & Ambient Dark Gradient Overlay -->
+  <div class="video-background-wrapper">
+    <video id="bgVideo" autoplay muted loop playsinline poster="assets/barber-logo-bg.jpg">
+      <source src="assets/barbershop.mp4" type="video/mp4">
+      <source src="https://lysandro.nl/wp-content/uploads/2021/03/barbershop.mp4" type="video/mp4">
+      Tu navegador no soporta video en HTML5.
+    </video>
+    <div class="video-overlay"></div>
+    <div class="golden-particles" id="particles"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#hero" class="brand-identity">
+        <img src="assets/logo.png" alt="Raíces Barber Logo" class="brand-logo">
+        <div class="brand-text">
+          <span class="brand-cursive">Raíces</span>
+          <span class="brand-sub">Barber Shop</span>
+        </div>
+      </a>
+
+      <nav class="nav-menu" id="navMenu">
+        <a href="#hero" class="nav-link active"><i class="fa-solid fa-house"></i> Inicio</a>
+        <a href="#cortes" class="nav-link"><i class="fa-solid fa-scissors"></i> Galería de Cortes</a>
+        <a href="#servicios" class="nav-link"><i class="fa-solid fa-crown"></i> Servicios</a>
+        <a href="#agendador" class="nav-link highlight-link"><i class="fa-solid fa-calendar-check"></i> Agendar Cita (50%)</a>
+        <a href="#mis-citas" class="nav-link" id="btnOpenMisCitas"><i class="fa-solid fa-clock-rotate-left"></i> Mis Citas (<span id="citasCount">0</span>)</a>
+        <a href="#contacto" class="nav-link"><i class="fa-solid fa-location-dot"></i> Ubicación</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="audioToggle" class="btn-icon" title="Sonido ambiente">
+          <i class="fa-solid fa-volume-xmark" id="audioIcon"></i>
+        </button>
+        <a href="#agendador" class="btn-gold-nav">
+          <span>Reservar (50%)</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Abrir Menú">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="hero">
+    <div class="hero-content">
+      <div class="hero-badge animate-fade">
+        <i class="fa-solid fa-gem"></i>
+        <span>Exclusividad &amp; Distinción Masculina</span>
+        <i class="fa-solid fa-gem"></i>
+      </div>
+
+      <h1 class="hero-cursive-title animate-title">
+        El Arte de la Barbería Clásica
+      </h1>
+      <p class="hero-tagline animate-subtitle">
+        Cortes de alta precisión, afeitado tradicional a navaja y diseño de barba exclusivo.
+      </p>
+
+      <!-- Golden Policy Notice Box -->
+      <div class="hero-policy-box animate-box">
+        <div class="policy-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="policy-details">
+          <h4>Reserva Garantizada con Anticipo del 50%</h4>
+          <p>
+            Solo aceptamos <span class="gold-highlight">pagos por transferencia bancaria (Nequi, Bancolombia, Nu o Davivienda)</span> del 50% para confirmar tu cita. 
+            Finaliza tu cita enviando el comprobante directamente a nuestro <strong class="ws-highlight"><i class="fa-brands fa-whatsapp"></i> WhatsApp</strong>.
+            <br>
+            <span style="color: #F7E5A9; display: block; margin-top: 8px; font-weight: 500;">
+              ⏰ <strong>Regla Estricta de las 12 Horas:</strong> Con más de <strong>12 horas de anticipación</strong> puedes <strong>editar o cancelar</strong> tu cita libremente. Si faltan <strong>menos de 12 horas</strong>, <strong>ya no se puede editar ni reagendar</strong>; únicamente puedes cancelar y <strong>pierdes el 50% de anticipo que enviaste</strong> para cubrir el tiempo reservado del barbero.
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <div class="hero-buttons">
+        <a href="#agendador" class="btn-gold-primary">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>Agendar Cita Ahora</span>
+        </a>
+        <a href="#cortes" class="btn-gold-secondary">
+          <i class="fa-solid fa-eye"></i>
+          <span>Ver Galería de Cortes</span>
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">+8,500</span>
+          <span class="stat-label">Cortes Impecables</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">4.9 ★</span>
+          <span class="stat-label">Calificación Clientes</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Citas Garantizadas</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cortes & Estilos Destacados (Imagen de Cortes y Logo) -->
+  <section class="section-container" id="cortes">
+    <div class="section-header">
+      <span class="cursive-subtitle">Nuestra Galería de Arte</span>
+      <h2 class="section-title">Cortes de Autor &amp; Estilos</h2>
+      <div class="golden-separator">
+        <span>❖</span>
+      </div>
+      <p class="section-description">
+        Selecciona el corte que deseas para tu próxima cita. Haz clic en "Elegir este corte" para cargarlo automáticamente en tu reserva.
+      </p>
+    </div>
+
+    <div class="cuts-grid" id="cutsGalleryGrid">
+      <!-- Cut Card 1 -->
+      <div class="cut-card">
+        <div class="cut-image-wrapper">
+          <img src="assets/corte-clasico.jpg" alt="Corte Clásico Imperial" class="cut-img">
+          <span class="cut-badge">El Más Solicitado</span>
+          <div class="cut-overlay">
+            <button class="btn-select-cut" onclick="seleccionarServicioYAgendar(0)">
+              <i class="fa-solid fa-check"></i> Elegir este corte
+            </button>
+          </div>
+        </div>
+        <div class="cut-info">
+          <h3 class="cut-name">Corte Clásico Pompadour &amp; Taper</h3>
+          <p class="cut-desc">Líneas limpias, degradado fino en patillas y nuca con textura superior manejable.</p>
+          <div class="cut-price-row">
+            <div class="price-full">
+              <span class="lbl">Precio Total</span>
+              <span class="val">$30.000 COP</span>
+            </div>
+            <div class="price-advance">
+              <span class="lbl">Anticipo (50%)</span>
+              <span class="val-gold">$15.000 COP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cut Card 2 -->
+      <div class="cut-card">
+        <div class="cut-image-wrapper">
+          <img src="assets/fade-moderno.jpg" alt="Skin Fade Moderno" class="cut-img">
+          <span class="cut-badge">Alta Precisión</span>
+          <div class="cut-overlay">
+            <button class="btn-select-cut" onclick="seleccionarServicioYAgendar(1)">
+              <i class="fa-solid fa-check"></i> Elegir este corte
+            </button>
+          </div>
+        </div>
+        <div class="cut-info">
+          <h3 class="cut-name">Skin Fade &amp; Crop Texturizado</h3>
+          <p class="cut-desc">Desvanecido rasurado a navaja o shaver con corona texturizada y contornos definidos.</p>
+          <div class="cut-price-row">
+            <div class="price-full">
+              <span class="lbl">Precio Total</span>
+              <span class="val">$35.000 COP</span>
+            </div>
+            <div class="price-advance">
+              <span class="lbl">Anticipo (50%)</span>
+              <span class="val-gold">$17.500 COP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cut Card 3 -->
+      <div class="cut-card">
+        <div class="cut-image-wrapper">
+          <img src="assets/barba-vip.jpg" alt="Ritual Barba Imperial" class="cut-img">
+          <span class="cut-badge">Experiencia VIP</span>
+          <div class="cut-overlay">
+            <button class="btn-select-cut" onclick="seleccionarServicioYAgendar(2)">
+              <i class="fa-solid fa-check"></i> Elegir este ritual
+            </button>
+          </div>
+        </div>
+        <div class="cut-info">
+          <h3 class="cut-name">Ritual Barba Imperial &amp; Toalla Caliente</h3>
+          <p class="cut-desc">Alineación geométrica a navaja, vapor aromático de eucalipto y aceites de cedro.</p>
+          <div class="cut-price-row">
+            <div class="price-full">
+              <span class="lbl">Precio Total</span>
+              <span class="val">$25.000 COP</span>
+            </div>
+            <div class="price-advance">
+              <span class="lbl">Anticipo (50%)</span>
+              <span class="val-gold">$12.500 COP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cut Card 4 -->
+      <div class="cut-card">
+        <div class="cut-image-wrapper">
+          <img src="assets/corte-diseno.jpg" alt="Diseño Urbano & Greca" class="cut-img">
+          <span class="cut-badge">Creativo</span>
+          <div class="cut-overlay">
+            <button class="btn-select-cut" onclick="seleccionarServicioYAgendar(3)">
+              <i class="fa-solid fa-check"></i> Elegir este corte
+            </button>
+          </div>
+        </div>
+        <div class="cut-info">
+          <h3 class="cut-name">Diseño Urbano, Grecas &amp; Freestyle</h3>
+          <p class="cut-desc">Trazo milimétrico de líneas y diseño artístico personalizado según tu estilo.</p>
+          <div class="cut-price-row">
+            <div class="price-full">
+              <span class="lbl">Precio Total</span>
+              <span class="val">$40.000 COP</span>
+            </div>
+            <div class="price-advance">
+              <span class="lbl">Anticipo (50%)</span>
+              <span class="val-gold">$20.000 COP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catálogo de Servicios con Regla del 50% -->
+  <section class="section-container bg-dark-alt" id="servicios">
+    <div class="section-header">
+      <span class="cursive-subtitle">Menú de Distinción</span>
+      <h2 class="section-title">Nuestros Servicios Exclusivos</h2>
+      <div class="golden-separator">
+        <span>❖</span>
+      </div>
+      <p class="section-description">
+        Todos los servicios incluyen bebidas de cortesía (café gourmet o bebida refrescante) y lavado capilar.
+      </p>
+    </div>
+
+    <div class="services-list" id="servicesContainer">
+      <!-- Inyectado dinámicamente con JS -->
+    </div>
+  </section>
+
+  <!-- SECCIÓN PRINCIPAL: AGENDADOR DE CITAS CON COBRO DEL 50% POR TRANSFERENCIA -->
+  <section class="scheduler-section" id="agendador">
+    <div class="scheduler-container">
+      
+      <div class="section-header text-center">
+        <span class="cursive-subtitle">Reserva Tu Turno</span>
+        <h2 class="section-title">Agendador Imperial</h2>
+        <div class="golden-separator">
+          <span>❖</span>
+        </div>
+        <p class="section-description">
+          Sigue los sencillos pasos para asegurar tu espacio. 
+          <strong class="gold-highlight">Cobro del 50% de anticipo por Transferencia (Nequi, Bancolombia, Nu o Davivienda)</strong> 
+          y confirmación inmediata enviando tu comprobante a <strong class="ws-highlight"><i class="fa-brands fa-whatsapp"></i> WhatsApp</strong>.
+        </p>
+      </div>
+
+      <!-- Wizard Progress Indicators -->
+      <div class="booking-steps-bar">
+        <div class="step-indicator active" data-step="1">
+          <div class="step-circle">1</div>
+          <span class="step-title">Servicio</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" data-step="2">
+          <div class="step-circle">2</div>
+          <span class="step-title">Barbero</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" data-step="3">
+          <div class="step-circle">3</div>
+          <span class="step-title">Fecha &amp; Hora</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" data-step="4">
+          <div class="step-circle">4</div>
+          <span class="step-title">Tus Datos</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" data-step="5">
+          <div class="step-circle">5</div>
+          <span class="step-title">Transferencia 50%</span>
+        </div>
+      </div>
+
+      <div class="booking-grid">
+        
+        <!-- Interactive Form Step Contents -->
+        <div class="booking-form-area">
+
+          <!-- PASO 1: Selección de Servicio -->
+          <div class="wizard-step active" id="wizardStep1">
+            <h3 class="step-heading">
+              <i class="fa-solid fa-scissors"></i> 1. Elige tu Servicio o Corte
+            </h3>
+            <p class="step-hint">Selecciona el paquete que deseas agendar el día de hoy:</p>
+            
+            <div class="service-selection-grid" id="serviceOptionsGrid">
+              <!-- Renderizado dinámicamente con JS -->
+            </div>
+
+            <div class="step-actions">
+              <div></div>
+              <button class="btn-gold-next" onclick="irAlPaso(2)">
+                Continuar a Barbero <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- PASO 2: Selección de Barbero Especialista -->
+          <div class="wizard-step" id="wizardStep2">
+            <h3 class="step-heading">
+              <i class="fa-solid fa-user-tie"></i> 2. Selecciona a tu Maestro Barbero
+            </h3>
+            <p class="step-hint">Cada maestro tiene su técnica de distinción y alta precisión:</p>
+
+            <div class="barbers-grid" id="barbersGrid">
+              <!-- Renderizado dinámicamente con JS -->
+            </div>
+
+            <div class="step-actions">
+              <button class="btn-gold-back" onclick="irAlPaso(1)">
+                <i class="fa-solid fa-chevron-left"></i> Volver a Servicios
+              </button>
+              <button class="btn-gold-next" onclick="irAlPaso(3)">
+                Continuar a Fecha <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- PASO 3: Fecha y Horario -->
+          <div class="wizard-step" id="wizardStep3">
+            <h3 class="step-heading">
+              <i class="fa-solid fa-calendar-day"></i> 3. Elige Fecha y Horario Disponible
+            </h3>
+            <p class="step-hint">Selecciona el día de tu visita y el horario en que deseas ser atendido:</p>
+
+            <div class="datetime-controls">
+              <div class="date-picker-box">
+                <label for="bookingDate"><i class="fa-regular fa-calendar"></i> Fecha de la Cita:</label>
+                <input type="date" id="bookingDate" class="gold-input">
+              </div>
+              <div class="quick-dates" id="quickDates">
+                <!-- Hoy, Mañana, Pasado mañana -->
+              </div>
+            </div>
+
+            <div class="time-slots-container">
+              <label class="time-label"><i class="fa-regular fa-clock"></i> Horarios Disponibles:</label>
+              <div class="time-slots-grid" id="timeSlotsGrid">
+                <!-- Generados dinámicamente con JS -->
+              </div>
+            </div>
+
+            <div class="step-actions">
+              <button class="btn-gold-back" onclick="irAlPaso(2)">
+                <i class="fa-solid fa-chevron-left"></i> Volver a Barbero
+              </button>
+              <button class="btn-gold-next" onclick="irAlPaso(4)">
+                Continuar a tus Datos <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- PASO 4: Datos del Cliente -->
+          <div class="wizard-step" id="wizardStep4">
+            <h3 class="step-heading">
+              <i class="fa-solid fa-address-card"></i> 4. Información de Contacto
+            </h3>
+            <p class="step-hint">Ingresa tus datos para vincular tu turno y comprobante de WhatsApp:</p>
+
+            <form id="clientForm" class="client-info-form" onsubmit="event.preventDefault(); irAlPaso(5);">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="clientName"><i class="fa-solid fa-user"></i> Nombre Completo *</label>
+                  <input type="text" id="clientName" class="gold-input" placeholder="Ej. Carlos Mendoza" required>
+                </div>
+                <div class="form-group">
+                  <label for="clientPhone"><i class="fa-brands fa-whatsapp"></i> Número de WhatsApp *</label>
+                  <input type="tel" id="clientPhone" class="gold-input" placeholder="Ej. 312 891 4738" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="clientEmail"><i class="fa-regular fa-envelope"></i> Correo Electrónico *</label>
+                  <input type="email" id="clientEmail" class="gold-input" placeholder="tu.email@ejemplo.com" required>
+                </div>
+                <div class="form-group">
+                  <label for="clientNotes"><i class="fa-regular fa-comment-dots"></i> Indicaciones o Gustos Especiales</label>
+                  <input type="text" id="clientNotes" class="gold-input" placeholder="Ej. Barba perfilada, piel sensible...">
+                </div>
+              </div>
+
+              <div class="step-actions">
+                <button type="button" class="btn-gold-back" onclick="irAlPaso(3)">
+                  <i class="fa-solid fa-chevron-left"></i> Volver a Fecha
+                </button>
+                <button type="submit" class="btn-gold-next">
+                  Ir a Transferencia del 50% <i class="fa-solid fa-building-columns"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- PASO 5: Cobro del 50% SOLO POR TRANSFERENCIA Y FINALIZACIÓN EN WHATSAPP -->
+          <div class="wizard-step" id="wizardStep5">
+            <div class="deposit-banner">
+              <div class="deposit-badge">
+                <i class="fa-solid fa-lock"></i> Exclusivo Por Transferencia Bancaria
+              </div>
+              <h3 class="deposit-title">Cobro del 50% de Anticipo para Asegurar tu Turno</h3>
+              <p class="deposit-explanation">
+                Transfiere el 50% del valor de tu corte a cualquiera de nuestras cuentas oficiales. 
+                Luego pulsa el botón inferior para <strong class="gold-text">enviar tu comprobante directamente al WhatsApp de la Barbería</strong> y confirmar tu cita.
+                <br>
+                <span style="color: #F7E5A9; display: block; margin-top: 6px;">
+                  ⚠️ Puedes cambiar o reagendar tu turno con un mínimo de <strong>12 horas de anticipación</strong>. Si llega el día y la hora de tu cita y no te presentas, el <strong>50% de anticipo transferido no se reembolsa</strong>.
+                </span>
+              </p>
+            </div>
+
+            <!-- Selector de Entidades Bancarias / Billeteras -->
+            <label class="time-label"><i class="fa-solid fa-building-columns"></i> Selecciona tu Banco o Billetera Digital:</label>
+            <div class="transfer-tabs">
+              <button type="button" class="transfer-tab active" data-bank="nequi" onclick="seleccionarBanco('nequi')">
+                <span class="bank-tag nequi-tag">Nequi</span>
+                <span class="bank-sub">Celular / Llave</span>
+              </button>
+              <button type="button" class="transfer-tab" data-bank="bancolombia" onclick="seleccionarBanco('bancolombia')">
+                <span class="bank-tag bancolombia-tag">Bancolombia</span>
+                <span class="bank-sub">Ahorros</span>
+              </button>
+              <button type="button" class="transfer-tab" data-bank="nu" onclick="seleccionarBanco('nu')">
+                <span class="bank-tag nu-tag">Nu Bank</span>
+                <span class="bank-sub">Cuenta Nu</span>
+              </button>
+              <button type="button" class="transfer-tab" data-bank="davivienda" onclick="seleccionarBanco('davivienda')">
+                <span class="bank-tag davivienda-tag">Davivienda</span>
+                <span class="bank-sub">Daviplata / Ahorros</span>
+              </button>
+            </div>
+
+            <!-- Caja Dinámica de Datos Bancarios -->
+            <div class="bank-details-box" id="bankDetailsContainer">
+              <!-- Renderizado dinámico con JS -->
+            </div>
+
+            <!-- Adjuntar Foto del Comprobante (OBLIGATORIO) -->
+            <div class="receipt-attach-container">
+              <label for="voucherUpload" class="upload-voucher-card required-card" id="voucherCard">
+                <div class="voucher-icon-wrap">
+                  <i class="fa-solid fa-camera voucher-icon"></i>
+                  <span class="required-badge">OBLIGATORIO</span>
+                </div>
+                <div class="upload-txt">
+                  <span class="upload-title">📸 Subir Foto del Comprobante de Transferencia (REQUERIDO) *</span>
+                  <span class="upload-desc">Es obligatorio adjuntar la foto o captura del pago del 50% para poder validar tu cita y enviarla a WhatsApp.</span>
+                </div>
+                <input type="file" id="voucherUpload" accept="image/*" style="display:none;" onchange="comprobanteSeleccionado(this)" required>
+              </label>
+
+              <div id="voucherFeedback" class="voucher-feedback-box" style="display:none;">
+                <div class="voucher-thumb-wrap" id="voucherThumbWrap"></div>
+                <div class="voucher-meta">
+                  <span class="v-status"><i class="fa-solid fa-circle-check"></i> Foto adjunta correctamente</span>
+                  <span id="voucherFileName" class="v-name"></span>
+                </div>
+                <button type="button" class="btn-change-voucher" onclick="document.getElementById('voucherUpload').click()">
+                  <i class="fa-solid fa-arrows-rotate"></i> Cambiar Foto
+                </button>
+              </div>
+            </div>
+
+            <!-- Botón Principal: Finalización en WhatsApp -->
+            <div class="whatsapp-finish-box">
+              <div class="finish-note">
+                <i class="fa-brands fa-whatsapp"></i>
+                <span>Al dar clic, se abrirá WhatsApp con el mensaje prellenado de tu reserva y el comprobante del 50%.</span>
+              </div>
+
+              <button type="button" class="btn-finish-whatsapp" id="btnFinishWhatsApp" onclick="finalizarCitaEnWhatsApp()">
+                <i class="fa-brands fa-whatsapp ws-icon-btn"></i>
+                <div class="btn-finish-text">
+                  <span class="main-txt">Enviar Comprobante y Finalizar en WhatsApp</span>
+                  <span class="sub-txt">Anticipo del 50%: <strong id="btnFinishAmount">$0 COP</strong></span>
+                </div>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+
+            <div class="step-actions mt-3">
+              <button type="button" class="btn-gold-back" onclick="irAlPaso(4)">
+                <i class="fa-solid fa-chevron-left"></i> Modificar Datos
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Sidebar Resumen de la Cita en Vivo -->
+        <aside class="booking-summary-sidebar">
+          <div class="summary-card">
+            <div class="summary-header">
+              <img src="assets/logo.png" alt="Raíces Logo" class="summary-mini-logo">
+              <div>
+                <h4 class="summary-title">Resumen de Cita</h4>
+                <span class="summary-tag">Presupuesto en Tiempo Real</span>
+              </div>
+            </div>
+
+            <div class="summary-items">
+              <div class="summary-item">
+                <span class="label"><i class="fa-solid fa-scissors"></i> Servicio:</span>
+                <span class="value" id="sumService">No seleccionado</span>
+              </div>
+              <div class="summary-item">
+                <span class="label"><i class="fa-solid fa-user"></i> Barbero:</span>
+                <span class="value" id="sumBarber">No seleccionado</span>
+              </div>
+              <div class="summary-item">
+                <span class="label"><i class="fa-regular fa-calendar"></i> Fecha:</span>
+                <span class="value" id="sumDate">Pendiente</span>
+              </div>
+              <div class="summary-item">
+                <span class="label"><i class="fa-regular fa-clock"></i> Hora:</span>
+                <span class="value" id="sumTime">Pendiente</span>
+              </div>
+              <div class="summary-item">
+                <span class="label"><i class="fa-solid fa-building-columns"></i> Transferencia:</span>
+                <span class="value gold-text" id="sumBank">Nequi</span>
+              </div>
+              <div class="summary-item">
+                <span class="label"><i class="fa-regular fa-circle-user"></i> Cliente:</span>
+                <span class="value" id="sumClient">-</span>
+              </div>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <!-- Price Breakdown with Highlighted 50% -->
+            <div class="price-breakdown-box">
+              <div class="price-line">
+                <span>Precio Total del Servicio:</span>
+                <span id="sumTotal" class="total-text">$0 COP</span>
+              </div>
+              
+              <!-- 50% Required Deposit Highlight -->
+              <div class="price-line advance-highlight">
+                <div class="advance-title-wrap">
+                  <span class="advance-badge">50% ANTICIPO POR TRANSFERENCIA</span>
+                  <strong>Monto a Transferir Ahora:</strong>
+                </div>
+                <strong id="sumAdvance" class="advance-number">$0 COP</strong>
+              </div>
+
+              <div class="price-line remaining-line">
+                <span>Saldo a liquidar en Barbería (50%):</span>
+                <span id="sumRemaining">$0 COP</span>
+              </div>
+            </div>
+
+            <!-- Security Assurance -->
+            <div class="security-guarantee">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Turno 100% apartado con tu comprobante. Con +12h puedes editar o cancelar. Con menos de 12 horas NO se puede editar; solo cancelar perdiendo el 50% de anticipo.</span>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Modal: Ticket Digital de Confirmación (Estilo Pase VIP Dorado) -->
+  <div class="modal-overlay" id="ticketModal">
+    <div class="ticket-card animate-zoom">
+      <button class="modal-close" onclick="cerrarTicketModal()">&times;</button>
+      
+      <div class="ticket-inner" id="printableTicket">
+        <div class="ticket-header">
+          <img src="assets/logo.png" alt="Raíces Logo" class="ticket-logo">
+          <div class="ticket-brand">
+            <span class="ticket-cursive">Raíces Barber Shop</span>
+            <span class="ticket-sub">PASE DE CITA VIP</span>
+          </div>
+          <div class="ticket-code" id="ticketId">#RBS-8721</div>
+        </div>
+
+        <div class="ticket-status-badge">
+          <i class="fa-solid fa-check-double"></i> CITA ENVIADA A WHATSAPP CON 50% DE ANTICIPO
+        </div>
+
+        <div class="ticket-body">
+          <div class="ticket-row">
+            <div class="t-col">
+              <span class="t-label">CLIENTE</span>
+              <span class="t-value" id="ticketClient">Carlos Mendoza</span>
+            </div>
+            <div class="t-col">
+              <span class="t-label">WHATSAPP</span>
+              <span class="t-value" id="ticketPhone">+57 312 891 4738</span>
+            </div>
+          </div>
+
+          <div class="ticket-row">
+            <div class="t-col">
+              <span class="t-label">CORTE / SERVICIO</span>
+              <span class="t-value gold-text" id="ticketService">Corte Clásico Pompadour</span>
+            </div>
+            <div class="t-col">
+              <span class="t-label">MAESTRO BARBERO</span>
+              <span class="t-value" id="ticketBarber">Alejandro "The King"</span>
+            </div>
+          </div>
+
+          <div class="ticket-row">
+            <div class="t-col">
+              <span class="t-label">FECHA</span>
+              <span class="t-value" id="ticketDate">28/09/2026</span>
+            </div>
+            <div class="t-col">
+              <span class="t-label">HORA PROGRAMADA</span>
+              <span class="t-value gold-text" id="ticketTime">04:00 PM</span>
+            </div>
+          </div>
+
+          <div class="ticket-row">
+            <div class="t-col">
+              <span class="t-label">TRANSFERENCIA REALIZADA POR</span>
+              <span class="t-value gold-text" id="ticketBankName">Nequi</span>
+            </div>
+            <div class="t-col">
+              <span class="t-label">ESTADO DE RESERVA</span>
+              <span class="t-value" style="color:#55FF88;">Enviado a WhatsApp</span>
+            </div>
+          </div>
+
+          <div class="ticket-row" id="ticketVoucherRow">
+            <div class="t-col" style="grid-column: span 2;">
+              <span class="t-label">COMPROBANTE 50% (FOTO ADJUNTA)</span>
+              <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                <div id="ticketVoucherThumb" style="width:38px; height:38px; border-radius:6px; overflow:hidden; border:1px solid #D4AF37; display:none; flex-shrink:0;"></div>
+                <span class="t-value" style="color: #25D366; font-size: 0.88rem;" id="ticketVoucherName"><i class="fa-solid fa-file-image"></i> Comprobante listo para enviar</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ticket-financials">
+            <div class="fin-box paid">
+              <span class="fin-label">ANTICIPO (50%)</span>
+              <span class="fin-val" id="ticketPaid">$15.000 COP</span>
+              <span class="fin-tag"><i class="fa-solid fa-lock"></i> Por Comprobante</span>
+            </div>
+            <div class="fin-box pending">
+              <span class="fin-label">SALDO EN BARBERÍA (50%)</span>
+              <span class="fin-val" id="ticketPending">$15.000 COP</span>
+              <span class="fin-tag">Por pagar al llegar</span>
+            </div>
+          </div>
+
+          <div class="ticket-qr-area">
+            <div class="qr-mockup">
+              <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <div class="qr-info">
+              <p><strong>Presenta este pase digital o tu WhatsApp al ingresar.</strong></p>
+              <small class="ticket-policy-text">⏰ <strong>Política 12 Horas:</strong> Con +12h puedes editar o cancelar. Con menos de 12 horas NO se puede editar; únicamente cancelar y pierdes el 50% de anticipo.</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-footer">
+          <p class="cursive-quote">"El arte del buen corte comienza en las raíces de tu estilo."</p>
+        </div>
+      </div>
+
+      <div class="ticket-actions">
+        <button class="btn-ticket-whatsapp" id="btnShareWhatsApp">
+          <i class="fa-brands fa-whatsapp"></i> Reabrir Chat de WhatsApp
+        </button>
+        <button class="btn-ticket-action" onclick="window.print()">
+          <i class="fa-solid fa-print"></i> Imprimir o Guardar Pase
+        </button>
+        <button class="btn-ticket-close" onclick="cerrarTicketModal()">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Historial "Mis Citas Agendadas" -->
+  <div class="modal-overlay" id="misCitasModal">
+    <div class="history-card animate-zoom">
+      <div class="modal-header">
+        <div class="m-title">
+          <i class="fa-solid fa-clock-rotate-left gold-text"></i>
+          <h3>Mis Citas Agendadas</h3>
+        </div>
+        <button class="modal-close" onclick="cerrarMisCitasModal()">&times;</button>
+      </div>
+
+      <p class="history-subtitle">
+        Citas guardadas en tu dispositivo. Puedes ver el pase digital o cancelar tu turno con anticipación.
+      </p>
+
+      <div class="citas-list" id="citasListContainer">
+        <!-- Renderizado dinámico de citas guardadas -->
+      </div>
+
+      <div class="modal-footer-actions">
+        <button class="btn-gold-secondary" onclick="cerrarMisCitasModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Reagendar / Editar Cita (+12 Horas de anticipación) -->
+  <div class="modal-overlay" id="modalEditarCita">
+    <div class="ticket-card animate-zoom" style="max-width: 480px; padding: 24px;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 12px; margin-bottom: 16px;">
+        <div class="m-title">
+          <i class="fa-solid fa-pen-to-square gold-text"></i>
+          <h3 style="color:#FFF; font-size:1.15rem;">Modificar Cita (+12h previas)</h3>
+        </div>
+        <button class="modal-close" onclick="cerrarModalEditarCita()">&times;</button>
+      </div>
+
+      <p style="font-size:0.83rem; color:#CCC; margin-bottom: 16px; line-height: 1.4;">
+        ✅ <strong>Cumples con el plazo de más de 12 horas.</strong> Puedes cambiar la fecha, hora y barbero. Tu 50% de anticipo se mantiene 100% válido para tu nuevo horario.
+      </p>
+
+      <form id="formReagendarCita" onsubmit="guardarReagendamiento(event)">
+        <input type="hidden" id="editCitaIndex">
+        <input type="hidden" id="editCitaId">
+
+        <div style="background: rgba(212,175,55,0.08); padding: 12px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.25); margin-bottom: 14px;">
+          <span style="font-size:0.75rem; color:#888; text-transform:uppercase; display:block;">Servicio Agendado:</span>
+          <div style="color:var(--gold-light); font-weight:600; font-size:0.95rem;" id="editCitaServicioNombre">Corte Clásico</div>
+          <span style="font-size:0.75rem; color:#25D366; display:inline-flex; align-items:center; gap:4px; margin-top:3px;"><i class="fa-solid fa-lock"></i> Anticipo del 50% Conservado</span>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px; text-align:left;">
+          <label style="display:block; font-size:0.8rem; color:#BBB; margin-bottom: 5px;">Nueva Fecha:</label>
+          <input type="date" id="editNuevaFecha" class="form-input" style="width:100%; padding:10px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; font-family:var(--font-primary);" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px; text-align:left;">
+          <label style="display:block; font-size:0.8rem; color:#BBB; margin-bottom: 5px;">Nuevo Horario:</label>
+          <select id="editNuevaHora" class="form-input" style="width:100%; padding:10px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; font-family:var(--font-primary);" required>
+            <!-- Llenado dinámicamente -->
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 18px; text-align:left;">
+          <label style="display:block; font-size:0.8rem; color:#BBB; margin-bottom: 5px;">Barbero Especialista:</label>
+          <select id="editNuevoBarbero" class="form-input" style="width:100%; padding:10px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; font-family:var(--font-primary);" required>
+            <!-- Llenado dinámicamente -->
+          </select>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button type="button" class="btn-gold-secondary" onclick="cerrarModalEditarCita()">Cancelar</button>
+          <button type="submit" class="btn-gold-primary" style="padding:10px 18px;">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar &amp; Notificar WhatsApp
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Alerta de Cancelación (< 12 Horas - Pierde el 50%) -->
+  <div class="modal-overlay" id="modalCancelarMenos12h">
+    <div class="ticket-card animate-zoom" style="max-width: 480px; padding: 26px; border: 1px solid #FF5555; box-shadow: 0 0 35px rgba(255, 85, 85, 0.35);">
+      <div style="text-align:center; margin-bottom: 16px;">
+        <div style="width:58px; height:58px; border-radius:50%; background:rgba(255,85,85,0.15); border:1px solid #FF5555; display:inline-flex; align-items:center; justify-content:center; color:#FF5555; font-size:1.7rem; margin-bottom: 10px;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 style="color:#FFF; font-size:1.2rem;">Cancelación Fuera de Plazo</h3>
+        <span style="color:#FF7777; font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; display:block; margin-top:2px;">Faltan menos de 12 horas</span>
+      </div>
+
+      <div style="background:#160909; border:1px solid rgba(255,85,85,0.35); border-radius:8px; padding:14px; margin-bottom: 18px; font-size:0.85rem; color:#DDD; line-height:1.5; text-align:left;">
+        <p style="margin-bottom:8px;">
+          ⚠️ <strong>POLÍTICA DE RESERVA DE RAÍCES BARBER SHOP:</strong>
+        </p>
+        <p style="margin-bottom:8px; color:#FFAAAA; font-size:0.83rem;">
+          Al cancelar con <strong>menos de 12 horas de anticipación</strong>, el espacio de tu barbero no puede ser reasignado a tiempo. Por tanto:
+        </p>
+        <div style="background:rgba(255,85,85,0.18); border-radius:6px; padding:8px 12px; margin-bottom:6px; font-size:0.86rem; color:#FFF; font-weight:600;">
+          ❌ PIERDES EL 50% DE ANTICIPO (<span id="cancelLossAmount">$0 COP</span>)
+        </div>
+        <p style="font-size:0.77rem; color:#999; margin:0;">
+          * Este anticipo no es reembolsable ni transferible a otra fecha u horario.
+        </p>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button type="button" class="btn-gold-primary" onclick="cerrarModalCancelarAlerta()" style="width:100%; justify-content:center;">
+          <i class="fa-solid fa-shield-halved"></i> No cancelar, Mantener mi Turno
+        </button>
+        <button type="button" onclick="ejecutarCancelacionConPerdida()" style="background:transparent; border:1px solid #FF5555; color:#FF7777; padding:10px; border-radius:6px; font-size:0.84rem; cursor:pointer; font-weight:600; transition:all 0.25s ease;" onmouseover="this.style.background='rgba(255,85,85,0.2)'" onmouseout="this.style.background='transparent'">
+          Sí, cancelar y aceptar pérdida del 50%
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toast">
+    <div class="toast-content">
+      <i class="fa-solid fa-circle-check" id="toastIcon"></i>
+      <span id="toastMessage">Acción completada</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer" id="contacto">
+    <div class="footer-container">
+      <div class="footer-col brand-col">
+        <img src="assets/logo.png" alt="Raíces Barber Logo" class="footer-logo">
+        <span class="footer-cursive">Raíces Barber Shop</span>
+        <p class="footer-about">
+          Redefiniendo la elegancia y la barbería de alta gama. Pasión, navaja pulida y atención de reyes para caballeros de distinción.
+        </p>
+        <div class="social-links">
+          <a href="https://www.instagram.com/raicesbarbershop?stkn=MXc4dW14b3RsZGN5ZA%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://www.tiktok.com/@raices.barber.sho?_r=1&_t=ZS-9A7bO4knsSy" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+          <a href="https://wa.me/573128914738" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Horarios de Atención</h4>
+        <ul class="footer-schedule">
+          <li><span>Lunes a Viernes:</span> <span>09:00 AM - 08:30 PM</span></li>
+          <li><span>Sábados:</span> <span>08:30 AM - 08:30 PM</span></li>
+          <li><span>Domingos:</span> <span>10:00 AM - 05:00 PM</span></li>
+        </ul>
+        <div class="footer-advance-note">
+          <i class="fa-solid fa-certificate gold-text"></i>
+          <span>Pagos de anticipo exclusivos por Nequi, Bancolombia, Nu y Davivienda con soporte directo a WhatsApp.</span>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Ubicación &amp; WhatsApp</h4>
+        <p class="contact-line">
+          <i class="fa-solid fa-location-dot gold-text"></i>
+          <span>Zona Exclusiva de Barbería, Colombia</span>
+        </p>
+        <p class="contact-line">
+          <i class="fa-brands fa-whatsapp gold-text"></i>
+          <span>WhatsApp Oficial: +57 312 891 4738</span>
+        </p>
+        <p class="contact-line">
+          <i class="fa-solid fa-envelope gold-text"></i>
+          <span>citas@raicesbarbershop.com</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container bottom-flex">
+        <p>&copy; 2026 Raíces Barber Shop. Todos los derechos reservados.</p>
+        <p class="bottom-cursive">"Elegancia, Precisión y Distinción"</p>
+        <a href="admin.html" class="admin-access-link" title="Panel de Administración VIP"><i class="fa-solid fa-lock"></i> Panel Admin</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="script.js?v=7.0" charset="UTF-8"></script>
+</body>
+</html>

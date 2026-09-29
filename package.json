@@ -1,0 +1,28 @@
+{
+  "name": "raices-barber-shop",
+  "version": "1.0.0",
+  "description": "Backend y Bot de WhatsApp para Raíces Barber Shop",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "barber",
+    "whatsapp-bot",
+    "baileys",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "nodemailer": "^10.0.12",
+    "pino": "^10.3.1",
+    "qrcode": "^1.5.4"
+  }
+}

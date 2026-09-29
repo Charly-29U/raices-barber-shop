@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración | Raíces Barber Shop</title>
+  
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@500;700;900&family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Admin Stylesheet -->
+  <link rel="stylesheet" href="admin.css?v=1.0">
+</head>
+<body class="admin-body">
+
+  <!-- Login Modal / Screen (Si no está autenticado) -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+      <div class="login-logo-wrapper">
+        <img src="assets/logo.png" alt="Logo Raíces" class="login-logo">
+      </div>
+      <h2 class="login-title">Raíces Barber Shop</h2>
+      <p class="login-subtitle">Panel de Control &amp; Administración VIP</p>
+      
+      <form id="adminLoginForm" onsubmit="iniciarSesionAdmin(event)">
+        <div class="form-group">
+          <label for="adminPass">Contraseña de Administrador:</label>
+          <div class="pass-input-wrapper">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="adminPass" placeholder="Ingresa la clave maestra" required autocomplete="current-password">
+            <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility()" title="Ver contraseña">
+              <i class="fa-solid fa-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+          <small class="pass-hint">Clave inicial por defecto: <strong>raices2026</strong> (puedes cambiarla en configuración).</small>
+        </div>
+
+        <button type="submit" class="btn-admin-gold full-btn">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Acceder al Panel
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- App Wrapper Principal (Visible tras Login) -->
+  <div class="admin-wrapper" id="adminApp" style="display: none;">
+    
+    <!-- Sidebar de Navegación -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-header">
+        <img src="assets/logo.png" alt="Logo" class="sidebar-logo">
+        <div class="sidebar-brand">
+          <span class="brand-cursive">Raíces</span>
+          <span class="brand-sub">PANEL ADMIN</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="tabDashboard" onclick="cambiarTab('tabDashboard')">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Dashboard &amp; Citas</span>
+        </button>
+
+        <button class="nav-item" data-tab="tabServicios" onclick="cambiarTab('tabServicios')">
+          <i class="fa-solid fa-scissors"></i>
+          <span>Servicios &amp; Cortes</span>
+        </button>
+
+        <button class="nav-item" data-tab="tabBarberos" onclick="cambiarTab('tabBarberos')">
+          <i class="fa-solid fa-users-gear"></i>
+          <span>Barberos</span>
+        </button>
+
+        <button class="nav-item" data-tab="tabGaleria" onclick="cambiarTab('tabGaleria')">
+          <i class="fa-solid fa-images"></i>
+          <span>Galería de Cortes</span>
+        </button>
+
+        <button class="nav-item" data-tab="tabBancos" onclick="cambiarTab('tabBancos')">
+          <i class="fa-solid fa-building-columns"></i>
+          <span>Cuentas Bancarias</span>
+        </button>
+
+        <button class="nav-item" data-tab="tabConfig" onclick="cambiarTab('tabConfig')">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Configuración &amp; Redes</span>
+        </button>
+
+        <button class="nav-item" data-tab="tabWhatsAppBot" onclick="cambiarTab('tabWhatsAppBot')">
+          <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i>
+          <span>WhatsApp Bot (QR)</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="index.html" target="_blank" class="btn-view-site">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver Sitio Web
+        </a>
+        <button class="btn-logout" onclick="cerrarSesionAdmin()">
+          <i class="fa-solid fa-power-off"></i> Cerrar Sesión
+        </button>
+      </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="admin-main">
+      
+      <!-- Top Header -->
+      <header class="admin-topbar">
+        <button class="mobile-toggle" onclick="toggleSidebarMobile()">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="topbar-title-wrap">
+          <h2 id="currentTabTitle">Dashboard de Control &amp; Citas</h2>
+          <span class="status-live"><i class="fa-solid fa-circle"></i> Sincronizado en Vivo</span>
+        </div>
+        <div class="topbar-actions">
+          <span class="admin-badge"><i class="fa-solid fa-shield-halved"></i> Modo Administrador</span>
+        </div>
+      </header>
+
+      <!-- TAB 1: DASHBOARD & GESTIÓN DE CITAS -->
+      <section class="tab-pane active" id="tabDashboard">
+        
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon gold"><i class="fa-solid fa-calendar-check"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-label">Total Citas Registradas</span>
+              <h3 class="kpi-value" id="kpiTotalCitas">0</h3>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon green"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-label">Anticipos Recibidos (50%)</span>
+              <h3 class="kpi-value gold-text" id="kpiAnticipos">$0 COP</h3>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon blue"><i class="fa-solid fa-cash-register"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-label">Saldo por Cobrar en Sede</span>
+              <h3 class="kpi-value" id="kpiSaldoPendiente">$0 COP</h3>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon purple"><i class="fa-solid fa-scissors"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-label">Servicios Disponibles</span>
+              <h3 class="kpi-value" id="kpiTotalServicios">0</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner Explicativo de Recordatorios Automáticos -->
+        <div class="reminder-info-card">
+          <div class="reminder-icon">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <div class="reminder-text">
+            <h4>Sistema de Recordatorio 1 o 2 Horas Antes de la Cita</h4>
+            <p>
+              <strong>Por WhatsApp:</strong> Haz clic en el botón <span class="badge-reminder"><i class="fa-brands fa-whatsapp"></i> Avisar Cita</span> en cualquier cita de la lista. Te abrirá directamente el chat de WhatsApp con el recordatorio oficial redactado listo para enviar.
+              <br>
+              <strong>Por Correo:</strong> Puedes enviar un correo automático de recordatorio al cliente usando el botón <span class="badge-email"><i class="fa-solid fa-envelope"></i> Recordar Email</span>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Citas Table Card -->
+        <div class="content-card">
+          <div class="card-header-flex">
+            <div>
+              <h3 class="card-title"><i class="fa-solid fa-list-check gold-text"></i> Lista de Citas &amp; Comprobantes</h3>
+              <p class="card-subtitle">Administra los turnos, valida comprobantes del 50% y envía recordatorios</p>
+            </div>
+            <div class="header-filters">
+              <select id="filterCitasEstado" onchange="filtrarCitas()" class="admin-select">
+                <option value="todos">Todos los Estados</option>
+                <option value="Pendiente">Pendiente de Revisión</option>
+                <option value="Confirmada">Confirmada (Anticipo OK)</option>
+                <option value="Completada">Completada (Corte Realizado)</option>
+                <option value="Cancelada">Cancelada</option>
+              </select>
+              <button class="btn-refresh" onclick="cargarCitasDashboard()" title="Recargar"><i class="fa-solid fa-rotate-right"></i></button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Cliente</th>
+                  <th>Servicio &amp; Barbero</th>
+                  <th>Fecha &amp; Hora</th>
+                  <th>Anticipo (50%)</th>
+                  <th>Comprobante</th>
+                  <th>Estado</th>
+                  <th>Acciones &amp; Recordatorio</th>
+                </tr>
+              </thead>
+              <tbody id="citasTableBody">
+                <!-- Se llena dinámicamente con admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: SERVICIOS & CORTES -->
+      <section class="tab-pane" id="tabServicios">
+        <div class="content-card">
+          <div class="card-header-flex">
+            <div>
+              <h3 class="card-title"><i class="fa-solid fa-scissors gold-text"></i> Catálogo de Cortes &amp; Servicios</h3>
+              <p class="card-subtitle">Crea, edita, cambia precios y fotos de los cortes ofrecidos</p>
+            </div>
+            <button class="btn-admin-gold" onclick="abrirModalServicio()">
+              <i class="fa-solid fa-plus"></i> Nuevo Servicio / Corte
+            </button>
+          </div>
+
+          <div class="services-admin-grid" id="serviciosAdminGrid">
+            <!-- Se llena dinámicamente -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: BARBEROS -->
+      <section class="tab-pane" id="tabBarberos">
+        <div class="content-card">
+          <div class="card-header-flex">
+            <div>
+              <h3 class="card-title"><i class="fa-solid fa-users-gear gold-text"></i> Maestros Barberos</h3>
+              <p class="card-subtitle">Administra los barberos disponibles para selección de clientes</p>
+            </div>
+            <button class="btn-admin-gold" onclick="abrirModalBarbero()">
+              <i class="fa-solid fa-user-plus"></i> Agregar Nuevo Barbero
+            </button>
+          </div>
+
+          <div class="barbers-admin-grid" id="barberosAdminGrid">
+            <!-- Se llena dinámicamente -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: GALERÍA DE CORTES -->
+      <section class="tab-pane" id="tabGaleria">
+        <div class="content-card">
+          <div class="card-header-flex">
+            <div>
+              <h3 class="card-title"><i class="fa-solid fa-images gold-text"></i> Galería de la Web</h3>
+              <p class="card-subtitle">Añade o borra fotos de los cortes mostrados a los clientes</p>
+            </div>
+            <button class="btn-admin-gold" onclick="abrirModalGaleria()">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Añadir Foto a Galería
+            </button>
+          </div>
+
+          <div class="gallery-admin-grid" id="galeriaAdminGrid">
+            <!-- Se llena dinámicamente -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: CUENTAS BANCARIAS -->
+      <section class="tab-pane" id="tabBancos">
+        <div class="content-card">
+          <div class="card-header-flex">
+            <div>
+              <h3 class="card-title"><i class="fa-solid fa-building-columns gold-text"></i> Cuentas de Transferencia (Anticipo 50%)</h3>
+              <p class="card-subtitle">Modifica los números y titulares de Nequi, Bancolombia, Nu y Davivienda</p>
+            </div>
+            <button class="btn-admin-gold" onclick="guardarConfigBancos()">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar Cuentas Bancarias
+            </button>
+          </div>
+
+          <div class="banks-form-grid">
+            <!-- Nequi -->
+            <div class="bank-edit-card">
+              <div class="b-header">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+                <h4>Nequi</h4>
+              </div>
+              <div class="form-group">
+                <label>Número Celular Nequi:</label>
+                <input type="text" id="nequiNumero" class="admin-input" value="3128914738">
+              </div>
+              <div class="form-group">
+                <label>Nombre del Titular:</label>
+                <input type="text" id="nequiTitular" class="admin-input" value="Raíces Barber Shop">
+              </div>
+              <div class="form-group">
+                <label>Instrucciones / Llave Transfiya:</label>
+                <input type="text" id="nequiInstrucciones" class="admin-input" value="Abre tu app Nequi, selecciona 'Envía plata' al número celular.">
+              </div>
+            </div>
+
+            <!-- Bancolombia -->
+            <div class="bank-edit-card">
+              <div class="b-header">
+                <i class="fa-solid fa-building-columns"></i>
+                <h4>Bancolombia</h4>
+              </div>
+              <div class="form-group">
+                <label>Número de Cuenta:</label>
+                <input type="text" id="bancolombiaNumero" class="admin-input" value="45892014512">
+              </div>
+              <div class="form-group">
+                <label>Tipo de Cuenta:</label>
+                <input type="text" id="bancolombiaTipo" class="admin-input" value="Cuenta de Ahorros Bancolombia">
+              </div>
+              <div class="form-group">
+                <label>Nombre del Titular:</label>
+                <input type="text" id="bancolombiaTitular" class="admin-input" value="Raíces Barber Shop">
+              </div>
+            </div>
+
+            <!-- Nu -->
+            <div class="bank-edit-card">
+              <div class="b-header">
+                <i class="fa-solid fa-wallet"></i>
+                <h4>Nu (Nubank)</h4>
+              </div>
+              <div class="form-group">
+                <label>Número de Cuenta Nu:</label>
+                <input type="text" id="nuNumero" class="admin-input" value="1004829105">
+              </div>
+              <div class="form-group">
+                <label>Nombre del Titular:</label>
+                <input type="text" id="nuTitular" class="admin-input" value="Raíces Barber Shop">
+              </div>
+              <div class="form-group">
+                <label>Instrucciones:</label>
+                <input type="text" id="nuInstrucciones" class="admin-input" value="Transfiere desde Nu o por Transfiya a la Cuenta de Ahorros Nu.">
+              </div>
+            </div>
+
+            <!-- Davivienda -->
+            <div class="bank-edit-card">
+              <div class="b-header">
+                <i class="fa-solid fa-landmark"></i>
+                <h4>Davivienda / Daviplata</h4>
+              </div>
+              <div class="form-group">
+                <label>Número de Cuenta o Daviplata:</label>
+                <input type="text" id="daviviendaNumero" class="admin-input" value="055084721920">
+              </div>
+              <div class="form-group">
+                <label>Nombre del Titular:</label>
+                <input type="text" id="daviviendaTitular" class="admin-input" value="Raíces Barber Shop">
+              </div>
+              <div class="form-group">
+                <label>Instrucciones Daviplata / Ahorros:</label>
+                <input type="text" id="daviviendaInstrucciones" class="admin-input" value="Daviplata o Ahorros al 312 891 4738.">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: CONFIGURACIÓN GENERAL, VIDEO & REDES -->
+      <section class="tab-pane" id="tabConfig">
+        <div class="content-card">
+          <div class="card-header-flex">
+            <div>
+              <h3 class="card-title"><i class="fa-solid fa-sliders gold-text"></i> Configuración General del Sitio</h3>
+              <p class="card-subtitle">Video de fondo, número de WhatsApp de reservas, redes sociales y clave maestra</p>
+            </div>
+            <button class="btn-admin-gold" onclick="guardarConfigGeneral()">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar Toda la Configuración
+            </button>
+          </div>
+
+          <div class="settings-form-layout">
+            
+            <!-- Video de Fondo -->
+            <div class="settings-box">
+              <div class="s-title"><i class="fa-solid fa-video gold-text"></i> Video de Fondo de la Web</div>
+              <p class="s-desc">Define el video que se reproduce en bucle en el fondo de la página de agendamiento.</p>
+              
+              <div class="form-group">
+                <label>Ruta local o URL de Video MP4:</label>
+                <input type="text" id="cfgVideoUrl" class="admin-input" placeholder="assets/barbershop.mp4 o https://...">
+              </div>
+
+              <div class="form-group">
+                <label>O sube un video MP4 desde tu dispositivo:</label>
+                <input type="file" id="cfgVideoFile" accept="video/mp4,video/webm" class="admin-file-input" onchange="cargarVideoArchivo(this)">
+                <small id="videoFileName" class="file-hint"></small>
+              </div>
+
+              <div class="video-preview-wrap">
+                <video id="cfgVideoPreview" controls muted loop style="max-width: 100%; max-height: 180px; border-radius: 8px; border: 1px solid #D4AF37;">
+                  <source src="assets/barbershop.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+            <!-- WhatsApp & Redes Sociales -->
+            <div class="settings-box">
+              <div class="s-title"><i class="fa-brands fa-whatsapp gold-text"></i> Contacto &amp; Redes Sociales</div>
+              <p class="s-desc">Los números y enlaces donde los clientes enviarán su comprobante y te seguirán.</p>
+              
+              <div class="form-group">
+                <label>Número WhatsApp Oficial (con código país, ej. 573128914738):</label>
+                <input type="text" id="cfgWhatsApp" class="admin-input" value="573128914738">
+              </div>
+
+              <div class="form-group">
+                <label>URL de Instagram:</label>
+                <input type="text" id="cfgInstagram" class="admin-input" value="https://www.instagram.com/raicesbarbershop?stkn=MXc4dW14b3RsZGN5ZA%3D%3D&utm_source=qr">
+              </div>
+
+              <div class="form-group">
+                <label>URL de TikTok:</label>
+                <input type="text" id="cfgTikTok" class="admin-input" value="https://www.tiktok.com/@raices.barber.sho?_r=1&_t=ZS-9A7bO4knsSy">
+              </div>
+
+              <div class="form-group">
+                <label>Correo Electrónico de Contacto:</label>
+                <input type="email" id="cfgEmail" class="admin-input" value="citas@raicesbarbershop.com">
+              </div>
+            </div>
+
+            <!-- Seguridad / Clave -->
+            <div class="settings-box">
+              <div class="s-title"><i class="fa-solid fa-key gold-text"></i> Clave Maestra de Administrador</div>
+              <p class="s-desc">Cambia la contraseña de acceso a este panel de administración.</p>
+              
+              <div class="form-group">
+                <label>Nueva Contraseña de Administrador:</label>
+                <input type="password" id="cfgNuevaClave" class="admin-input" placeholder="Ingresa nueva clave para actualizar">
+              </div>
+            </div>
+
+            <!-- Respaldos / Reset -->
+            <div class="settings-box">
+              <div class="s-title"><i class="fa-solid fa-database gold-text"></i> Copia de Seguridad &amp; Restauración</div>
+              <p class="s-desc">Descarga los datos de tu barbería o restaura los valores por defecto.</p>
+              
+              <div class="settings-actions-row">
+                <button type="button" class="btn-admin-secondary" onclick="exportarDatosJSON()">
+                  <i class="fa-solid fa-download"></i> Descargar Copia (JSON)
+                </button>
+                <button type="button" class="btn-admin-danger" onclick="restaurarPorDefecto()">
+                  <i class="fa-solid fa-arrow-rotate-left"></i> Restaurar Valores Originales
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: BOT DE WHATSAPP AUTOMÁTICO (CÓDIGO QR Y RECORDATORIOS) -->
+      <section class="tab-pane" id="tabWhatsAppBot">
+        <div class="content-card">
+          <div class="card-header-flex">
+            <div>
+              <h3 class="card-title"><i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> Robot de WhatsApp Automático (Escaneo QR)</h3>
+              <p class="card-subtitle">Envía confirmaciones automáticas de reserva y recordatorios 1 o 2 horas antes de cada turno</p>
+            </div>
+            <div id="botConnectionBadgeWrap">
+              <span class="status-badge" id="botStatusBadge" style="background:rgba(255,255,255,0.1); color:#fff;">Consultando estado...</span>
+            </div>
+          </div>
+
+          <!-- Banner Informativo -->
+          <div class="reminder-info-card" style="margin-bottom: 24px;">
+            <div class="reminder-icon" style="background:rgba(37,211,102,0.2); color:#25D366;">
+              <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            <div class="reminder-text">
+              <h4>¿Cómo funciona la vinculación en 10 segundos?</h4>
+              <p>
+                1. Abre WhatsApp en tu celular (<strong>+57 312 891 4738</strong>).<br>
+                2. Toca los tres puntos (⋮) o Configuración > <strong>Dispositivos vinculados</strong> > <strong>Vincular un dispositivo</strong>.<br>
+                3. Apunta la cámara de tu celular al <strong>Código QR</strong> mostrado abajo. ¡Listo! El robot quedará conectado enviando mensajes de forma 100% desatendida.
+              </p>
+            </div>
+          </div>
+
+          <div class="settings-form-layout" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            
+            <!-- Tarjeta del Código QR -->
+            <div class="settings-box" style="text-align: center;">
+              <div class="s-title" style="justify-content: center;"><i class="fa-solid fa-qrcode gold-text"></i> Código QR de Vinculación</div>
+              <p class="s-desc">Escanea este código desde la app de WhatsApp de tu celular.</p>
+
+              <div id="qrLoadingSpinner" style="padding: 20px; display: none;">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.5rem; color: #D4AF37;"></i>
+                <p style="margin-top: 10px; font-size: 0.84rem; color: #BBB;">Generando nuevo código QR...</p>
+              </div>
+
+              <div id="qrImageContainer" style="min-height: 280px; display: flex; align-items: center; justify-content: center; background: #000; border-radius: 12px; padding: 16px; border: 1px solid var(--admin-gold-border); margin-bottom: 16px;">
+                <img id="botQrImg" src="" alt="Código QR WhatsApp" style="max-width: 280px; border-radius: 8px; display: none;">
+                <div id="botConnectedBox" style="display: none; padding: 20px;">
+                  <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: #25D366; margin-bottom: 12px; display: block;"></i>
+                  <h4 style="color: #FFF; font-size: 1.2rem;">¡WhatsApp Conectado!</h4>
+                  <p style="color: #25D366; font-weight: 600; margin-top: 4px;" id="botConnectedPhoneLabel">+57 312 891 4738</p>
+                  <small style="color: #888; display: block; margin-top: 8px;">El robot está activo y despachando recordatorios automáticos.</small>
+                </div>
+                <div id="botDisconnectedBox" style="color: #888;">
+                  <i class="fa-solid fa-plug-circle-xmark" style="font-size: 3rem; margin-bottom: 10px; display: block; color: #666;"></i>
+                  <p>Iniciando servicio de WhatsApp...</p>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button type="button" class="btn-admin-gold" onclick="recargarQrBot()">
+                  <i class="fa-solid fa-rotate"></i> Actualizar QR
+                </button>
+                <button type="button" class="btn-admin-danger" onclick="desvincularBot()">
+                  <i class="fa-solid fa-power-off"></i> Desvincular Celular
+                </button>
+              </div>
+            </div>
+
+            <!-- Configuración de Horas y Automatización -->
+            <div class="settings-box">
+              <div class="s-title"><i class="fa-solid fa-robot gold-text"></i> Reglas de Envío Automático</div>
+              <p class="s-desc">Define qué mensajes debe enviar el robot y con cuánta antelación.</p>
+
+              <div class="form-group">
+                <label>Enviar Recordatorio Automático al Cliente:</label>
+                <select id="botHorasAnticipacion" class="admin-select" style="width: 100%; padding: 10px;">
+                  <option value="1">1 Hora antes del turno de la cita (Recomendado)</option>
+                  <option value="2">2 Horas antes del turno de la cita</option>
+                </select>
+                <small style="color: #888; display: block; margin-top: 4px;">El robot revisa las citas del día cada 60 segundos y dispara el mensaje exacto.</small>
+              </div>
+
+              <div class="form-group" style="margin-top: 18px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF;">
+                  <input type="checkbox" id="botCheckConfirmacion" checked style="width: 18px; height: 18px; accent-color: #D4AF37;">
+                  <span>Enviar Confirmación Inmediata al registrarse la cita</span>
+                </label>
+                <small style="color: #888; display: block; margin-top: 4px; padding-left: 26px;">Apenas el cliente suba el comprobante, el bot le confirma que su cita fue recibida.</small>
+              </div>
+
+              <div class="form-group" style="margin-top: 18px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF;">
+                  <input type="checkbox" id="botCheckActivo" checked style="width: 18px; height: 18px; accent-color: #25D366;">
+                  <span>Robot de Recordatorios Activo en Segundo Plano</span>
+                </label>
+              </div>
+
+              <button type="button" class="btn-admin-gold full-btn" onclick="guardarConfigBot()">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar Reglas del Robot
+              </button>
+
+              <hr style="border: 0; border-top: 1px solid #222; margin: 24px 0 16px;">
+
+              <!-- Prueba Inmediata -->
+              <div class="s-title" style="font-size: 0.95rem;"><i class="fa-solid fa-paper-plane gold-text"></i> Probar Envío Directo</div>
+              <p style="font-size: 0.78rem; color: #888; margin-bottom: 12px;">Envía un mensaje de prueba a cualquier celular para verificar que tu WhatsApp está enviando correctamente.</p>
+              
+              <div class="form-group">
+                <input type="text" id="testPhone" class="admin-input" placeholder="Número celular (ej. 3128914738 o 3205676522)">
+              </div>
+              <div class="form-group">
+                <input type="text" id="testMessage" class="admin-input" value="💈 ¡Hola! Este es un mensaje de prueba automático desde Raíces Barber Shop. ✅">
+              </div>
+              <button type="button" class="btn-admin-secondary" style="width: 100%; justify-content: center;" onclick="enviarMensajePruebaBot()">
+                <i class="fa-solid fa-paper-plane"></i> Enviar Mensaje de Prueba
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: VER COMPROBANTE EN TAMAÑO COMPLETO -->
+  <div class="admin-modal-overlay" id="modalComprobante">
+    <div class="admin-modal-card animate-zoom">
+      <div class="modal-top">
+        <h3 id="comprobanteModalTitle"><i class="fa-solid fa-file-invoice-dollar gold-text"></i> Comprobante de Transferencia (50%)</h3>
+        <button class="btn-close-modal" onclick="cerrarModalComprobante()">&times;</button>
+      </div>
+      <div class="comprobante-preview-large" id="comprobanteImgContainer">
+        <!-- Imagen inyectada -->
+      </div>
+      <div class="modal-bottom-actions">
+        <span id="comprobanteModalInfo" class="gold-text"></span>
+        <button class="btn-admin-gold" onclick="cerrarModalComprobante()">Listo / Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREAR / EDITAR SERVICIO -->
+  <div class="admin-modal-overlay" id="modalServicio">
+    <div class="admin-modal-card animate-zoom">
+      <div class="modal-top">
+        <h3 id="modalServicioTitle"><i class="fa-solid fa-scissors gold-text"></i> Servicio / Corte</h3>
+        <button class="btn-close-modal" onclick="cerrarModalServicio()">&times;</button>
+      </div>
+      <form id="formServicio" onsubmit="guardarServicio(event)">
+        <input type="hidden" id="srvId">
+        <div class="form-group">
+          <label>Nombre del Corte o Servicio:</label>
+          <input type="text" id="srvNombre" class="admin-input" required placeholder="Ej: Fade Moderno & Barba">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Precio Total (COP):</label>
+            <input type="number" id="srvPrecio" class="admin-input" required placeholder="35000" oninput="actualizarCalculoAnticipo(this.value)">
+          </div>
+          <div class="form-group">
+            <label>Anticipo Requerido (50% Auto):</label>
+            <input type="text" id="srvAnticipoPreview" class="admin-input" readonly value="$0 COP" style="background:#1a1a1a; color:#D4AF37;">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Duración Estimada:</label>
+          <input type="text" id="srvDuracion" class="admin-input" required placeholder="Ej: 45 min">
+        </div>
+        <div class="form-group">
+          <label>Descripción del Servicio:</label>
+          <textarea id="srvDescripcion" class="admin-textarea" rows="3" required placeholder="Detalla el corte, técnicas usadas, toalla caliente..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Imagen del Corte (URL o Subir archivo):</label>
+          <input type="text" id="srvImagenUrl" class="admin-input" placeholder="assets/fade-moderno.jpg o https://...">
+          <input type="file" id="srvImagenFile" accept="image/*" class="admin-file-input" style="margin-top: 6px;" onchange="procesarFotoArchivo(this, 'srvImagenUrl', 'srvImgThumb')">
+          <div id="srvImgThumb" class="img-preview-thumb"></div>
+        </div>
+        <div class="modal-bottom-actions">
+          <button type="button" class="btn-admin-secondary" onclick="cerrarModalServicio()">Cancelar</button>
+          <button type="submit" class="btn-admin-gold"><i class="fa-solid fa-floppy-disk"></i> Guardar Servicio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CREAR / EDITAR BARBERO -->
+  <div class="admin-modal-overlay" id="modalBarbero">
+    <div class="admin-modal-card animate-zoom">
+      <div class="modal-top">
+        <h3 id="modalBarberoTitle"><i class="fa-solid fa-user-plus gold-text"></i> Barbero</h3>
+        <button class="btn-close-modal" onclick="cerrarModalBarbero()">&times;</button>
+      </div>
+      <form id="formBarbero" onsubmit="guardarBarbero(event)">
+        <input type="hidden" id="barberoId">
+        <div class="form-group">
+          <label>Nombre Completo / Apodo:</label>
+          <input type="text" id="barberoNombre" class="admin-input" required placeholder="Ej: Camilo 'Blade' Morales">
+        </div>
+        <div class="form-group">
+          <label>Especialidad:</label>
+          <input type="text" id="barberoEspecialidad" class="admin-input" required placeholder="Ej: Master en Diseños & Visagismo">
+        </div>
+        <div class="form-group">
+          <label>Experiencia:</label>
+          <input type="text" id="barberoExperiencia" class="admin-input" required placeholder="Ej: 7 años de experiencia">
+        </div>
+        <div class="form-group">
+          <label>Foto de Perfil (URL o Subir Foto):</label>
+          <input type="text" id="barberoAvatarUrl" class="admin-input" placeholder="URL de imagen o deja en blanco">
+          <input type="file" id="barberoAvatarFile" accept="image/*" class="admin-file-input" style="margin-top: 6px;" onchange="procesarFotoArchivo(this, 'barberoAvatarUrl', 'barberoAvatarThumb')">
+          <div id="barberoAvatarThumb" class="img-preview-thumb"></div>
+        </div>
+        <div class="modal-bottom-actions">
+          <button type="button" class="btn-admin-secondary" onclick="cerrarModalBarbero()">Cancelar</button>
+          <button type="submit" class="btn-admin-gold"><i class="fa-solid fa-floppy-disk"></i> Guardar Barbero</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AÑADIR A LA GALERÍA -->
+  <div class="admin-modal-overlay" id="modalGaleria">
+    <div class="admin-modal-card animate-zoom">
+      <div class="modal-top">
+        <h3><i class="fa-solid fa-image gold-text"></i> Añadir Foto a la Galería</h3>
+        <button class="btn-close-modal" onclick="cerrarModalGaleria()">&times;</button>
+      </div>
+      <form id="formGaleria" onsubmit="guardarFotoGaleria(event)">
+        <div class="form-group">
+          <label>Título del Estilo / Corte:</label>
+          <input type="text" id="galeriaTitulo" class="admin-input" required placeholder="Ej: Fade Clásico con Líneas">
+        </div>
+        <div class="form-group">
+          <label>Etiqueta / Badge (Opcional):</label>
+          <input type="text" id="galeriaBadge" class="admin-input" placeholder="Ej: Tendencia, VIP, Nuevo, Popular">
+        </div>
+        <div class="form-group">
+          <label>Foto (Subir Imagen o URL):</label>
+          <input type="text" id="galeriaImgUrl" class="admin-input" placeholder="URL o selecciona archivo abajo">
+          <input type="file" id="galeriaImgFile" accept="image/*" class="admin-file-input" style="margin-top: 6px;" onchange="procesarFotoArchivo(this, 'galeriaImgUrl', 'galeriaImgThumb')">
+          <div id="galeriaImgThumb" class="img-preview-thumb"></div>
+        </div>
+        <div class="modal-bottom-actions">
+          <button type="button" class="btn-admin-secondary" onclick="cerrarModalGaleria()">Cancelar</button>
+          <button type="submit" class="btn-admin-gold"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar en Galería</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="adminToast">
+    <div class="toast-content">
+      <i class="fa-solid fa-circle-check" id="adminToastIcon"></i>
+      <span id="adminToastMessage">Acción completada</span>
+    </div>
+  </div>
+
+  <!-- Admin JS Script -->
+  <script src="admin.js?v=2.0" charset="UTF-8"></script>
+</body>
+</html>

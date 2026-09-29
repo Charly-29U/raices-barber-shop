@@ -7,12 +7,14 @@
      3. Tarea automática programada: Recordatorio 1 o 2 horas antes de la cita
    ========================================================================== */
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const QRCode = require('qrcode');
 const pino = require('pino');
+const { createClient } = require('@supabase/supabase-js');
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -22,6 +24,22 @@ const {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Configuración de Supabase
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+let supabase = null;
+
+if (SUPABASE_URL && SUPABASE_KEY) {
+  try {
+    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log('⚡ [SUPABASE] Cliente inicializado correctamente para:', SUPABASE_URL);
+  } catch (err) {
+    console.error('❌ [SUPABASE] Error iniciando cliente:', err.message);
+  }
+} else {
+  console.log('ℹ️ [SUPABASE] Variables SUPABASE_URL o SUPABASE_KEY no detectadas. Usando almacenamiento local.');
+}
 
 // Configuración de Middlewares
 app.use(cors());
@@ -369,7 +387,7 @@ app.post('/api/whatsapp/send', async (req, res) => {
   }
 });
 
-// 6. Registrar Cita y Enviar Confirmación Automática
+// 6. Registrar Cita y Enviar Confirmación Automática (Supabase + Local)
 app.post('/api/citas/registrar', async (req, res) => {
   const nuevaCita = req.body;
   if (!nuevaCita || !nuevaCita.id) {
@@ -377,22 +395,46 @@ app.post('/api/citas/registrar', async (req, res) => {
   }
 
   try {
+    // 1. Guardar en Supabase (PostgreSQL) si está disponible
+    if (supabase) {
+      try {
+        await supabase.from('citas').upsert({
+          id: String(nuevaCita.id),
+          codigo: String(nuevaCita.codigo || nuevaCita.id),
+          cliente: nuevaCita.cliente || {},
+          servicio: String(nuevaCita.servicio || ''),
+          barbero: String(nuevaCita.barbero || ''),
+          fecha: nuevaCita.fecha,
+          hora: String(nuevaCita.hora || ''),
+          total: Number(nuevaCita.total || 0),
+          anticipo_pagado: Number(nuevaCita.anticipoPagado || 0),
+          saldo_pendiente: Number(nuevaCita.saldoPendiente || 0),
+          comprobante: nuevaCita.comprobante || null,
+          estado: nuevaCita.estado || 'Pendiente',
+          notas: nuevaCita.notas || '',
+          recordatorio_enviado: false
+        });
+        console.log(`✅ [SUPABASE] Cita #${nuevaCita.id} sincronizada en la nube.`);
+      } catch (errSupa) {
+        console.error('Error insertando en Supabase:', errSupa.message);
+      }
+    }
+
+    // 2. Respaldo en archivo local
     let citas = [];
     if (fs.existsSync(CITAS_FILE)) {
       citas = JSON.parse(fs.readFileSync(CITAS_FILE, 'utf8') || '[]');
     }
 
-    // Agregar o actualizar
     const idx = citas.findIndex(c => c.id === nuevaCita.id);
     if (idx !== -1) {
       citas[idx] = { ...citas[idx], ...nuevaCita };
     } else {
       citas.unshift(nuevaCita);
     }
-
     fs.writeFileSync(CITAS_FILE, JSON.stringify(citas, null, 2));
 
-    // Si el bot está activo y conectado, despachar confirmación automática inmediata al cliente
+    // 3. Notificación de WhatsApp inmediata
     if (botConfig.enviarConfirmacionInmediata && connectionStatus === 'conectado' && nuevaCita.cliente?.telefono) {
       const partes = nuevaCita.fecha ? nuevaCita.fecha.split('-') : ['--', '--', '----'];
       const fechaBonita = `${partes[2]}/${partes[1]}/${partes[0]}`;
@@ -424,7 +466,7 @@ app.post('/api/citas/registrar', async (req, res) => {
       }
     }
 
-    res.json({ success: true, message: 'Cita registrada en el servidor con éxito.' });
+    res.json({ success: true, message: 'Cita registrada con éxito en Supabase y localmente.' });
   } catch (err) {
     console.error('Error registrando cita en server:', err);
     res.status(500).json({ success: false, error: err.message });
@@ -432,10 +474,30 @@ app.post('/api/citas/registrar', async (req, res) => {
 });
 
 // 7. Sincronizar Citas desde el Panel Admin
-app.post('/api/citas/sincronizar', (req, res) => {
+app.post('/api/citas/sincronizar', async (req, res) => {
   const { citas } = req.body;
   if (Array.isArray(citas)) {
     try {
+      if (supabase && citas.length > 0) {
+        for (const c of citas) {
+          await supabase.from('citas').upsert({
+            id: String(c.id),
+            codigo: String(c.codigo || c.id),
+            cliente: c.cliente || {},
+            servicio: String(c.servicio || ''),
+            barbero: String(c.barbero || ''),
+            fecha: c.fecha,
+            hora: String(c.hora || ''),
+            total: Number(c.total || 0),
+            anticipo_pagado: Number(c.anticipoPagado || 0),
+            saldo_pendiente: Number(c.saldoPendiente || 0),
+            comprobante: c.comprobante || null,
+            estado: c.estado || 'Pendiente',
+            notas: c.notas || '',
+            recordatorio_enviado: !!c.recordatorioEnviado
+          });
+        }
+      }
       fs.writeFileSync(CITAS_FILE, JSON.stringify(citas, null, 2));
       return res.json({ success: true, count: citas.length });
     } catch (e) {
@@ -445,14 +507,145 @@ app.post('/api/citas/sincronizar', (req, res) => {
   res.status(400).json({ success: false, error: 'Formato inválido' });
 });
 
-// 8. Obtener Citas del Servidor
-app.get('/api/citas', (req, res) => {
+// 8. Obtener Citas (Supabase primero, fallback a local)
+app.get('/api/citas', async (req, res) => {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('citas').select('*').order('created_at', { ascending: false });
+      if (!error && Array.isArray(data) && data.length > 0) {
+        const citasFormateadas = data.map(c => ({
+          id: c.id,
+          codigo: c.codigo || c.id,
+          cliente: c.cliente,
+          servicio: c.servicio,
+          barbero: c.barbero,
+          fecha: c.fecha,
+          hora: c.hora,
+          total: Number(c.total || 0),
+          anticipoPagado: Number(c.anticipo_pagado || 0),
+          saldoPendiente: Number(c.saldo_pendiente || 0),
+          comprobante: c.comprobante,
+          estado: c.estado || 'Pendiente',
+          notas: c.notas || '',
+          recordatorioEnviado: c.recordatorio_enviado,
+          created_at: c.created_at
+        }));
+        return res.json(citasFormateadas);
+      }
+    } catch (e) {
+      console.error('Error leyendo de Supabase:', e.message);
+    }
+  }
+
   try {
     const citas = JSON.parse(fs.readFileSync(CITAS_FILE, 'utf8') || '[]');
     res.json(citas);
   } catch (e) {
     res.json([]);
   }
+});
+
+// 8b. Actualizar Estado de Cita
+app.put('/api/citas/:id/estado', async (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body;
+  if (!id || !estado) {
+    return res.status(400).json({ success: false, error: 'Faltan parámetros' });
+  }
+
+  if (supabase) {
+    try {
+      await supabase.from('citas').update({ estado }).eq('id', id);
+    } catch (e) {
+      console.error('Error actualizando en Supabase:', e.message);
+    }
+  }
+
+  try {
+    let citas = JSON.parse(fs.readFileSync(CITAS_FILE, 'utf8') || '[]');
+    const idx = citas.findIndex(c => c.id === id);
+    if (idx !== -1) {
+      citas[idx].estado = estado;
+      fs.writeFileSync(CITAS_FILE, JSON.stringify(citas, null, 2));
+    }
+    res.json({ success: true, id, estado });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// 8c. Endpoints para Servicios
+app.get('/api/servicios', async (req, res) => {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('servicios').select('*').order('orden', { ascending: true });
+      if (!error && Array.isArray(data) && data.length > 0) return res.json(data);
+    } catch (e) {}
+  }
+  res.json([]);
+});
+
+app.post('/api/servicios', async (req, res) => {
+  const servicio = req.body;
+  if (!servicio || !servicio.id) return res.status(400).json({ error: 'Datos inválidos' });
+  if (supabase) {
+    try {
+      await supabase.from('servicios').upsert(servicio);
+    } catch (e) {}
+  }
+  res.json({ success: true, servicio });
+});
+
+// 8d. Endpoints para Barberos
+app.get('/api/barberos', async (req, res) => {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('barberos').select('*');
+      if (!error && Array.isArray(data) && data.length > 0) return res.json(data);
+    } catch (e) {}
+  }
+  res.json([]);
+});
+
+app.post('/api/barberos', async (req, res) => {
+  const barbero = req.body;
+  if (!barbero || !barbero.id) return res.status(400).json({ error: 'Datos inválidos' });
+  if (supabase) {
+    try {
+      await supabase.from('barberos').upsert(barbero);
+    } catch (e) {}
+  }
+  res.json({ success: true, barbero });
+});
+
+// 8e. Endpoints para Cuentas Bancarias
+app.get('/api/bancos', async (req, res) => {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('bancos').select('*');
+      if (!error && Array.isArray(data) && data.length > 0) return res.json(data);
+    } catch (e) {}
+  }
+  res.json([]);
+});
+
+app.post('/api/bancos', async (req, res) => {
+  const banco = req.body;
+  if (!banco || !banco.id) return res.status(400).json({ error: 'Datos inválidos' });
+  if (supabase) {
+    try {
+      await supabase.from('bancos').upsert(banco);
+    } catch (e) {}
+  }
+  res.json({ success: true, banco });
+});
+
+// 8f. Estado Supabase
+app.get('/api/supabase/status', (req, res) => {
+  res.json({
+    connected: !!supabase,
+    url: SUPABASE_URL ? `${SUPABASE_URL.slice(0, 18)}...` : null
+  });
 });
 
 // 9. Actualizar Configuración del Bot de WhatsApp

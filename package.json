@@ -18,8 +18,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
     "@whiskeysockets/baileys": "^7.0.0-rc14",
     "cors": "^2.8.6",
+    "dotenv": "^18.0.4",
     "express": "^5.2.1",
     "nodemailer": "^10.0.12",
     "pino": "^10.3.1",

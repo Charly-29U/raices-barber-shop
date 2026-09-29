@@ -336,7 +336,17 @@ function setCitas(citas) {
   localStorage.setItem(STORAGE_KEYS.CITAS, JSON.stringify(citas));
 }
 
-function cargarCitasDashboard() {
+async function cargarCitasDashboard() {
+  try {
+    const res = await fetch("/api/citas");
+    if (res.ok) {
+      const citasServidor = await res.json();
+      if (Array.isArray(citasServidor) && citasServidor.length > 0) {
+        setCitas(citasServidor);
+      }
+    }
+  } catch (e) {}
+
   const citas = getCitas();
   const servicios = JSON.parse(localStorage.getItem(STORAGE_KEYS.SERVICIOS) || "[]");
 
@@ -456,6 +466,13 @@ function cambiarEstadoCita(citaId, nuevoEstado) {
     setCitas(citas);
     mostrarAdminToast(`Cita #${citaId} marcada como ${nuevoEstado}`, "success");
     cargarCitasDashboard();
+
+    // Sincronizar en el servidor y Supabase
+    fetch(`/api/citas/${encodeURIComponent(citaId)}/estado`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ estado: nuevoEstado })
+    }).catch(e => console.error("Error sincronizando estado con servidor:", e));
   }
 }
 

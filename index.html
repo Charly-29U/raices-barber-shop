@@ -840,6 +840,32 @@
         </button>
       </div>
     </div>
+  <!-- Modal: Confirmar Cancelación (+12 Horas con Anticipación) -->
+  <div class="modal-overlay" id="modalCancelarMas12h">
+    <div class="ticket-card animate-zoom" style="max-width: 480px; padding: 26px; border: 1px solid var(--gold-primary); box-shadow: 0 0 35px rgba(212, 175, 55, 0.25);">
+      <div style="text-align:center; margin-bottom: 16px;">
+        <div style="width:58px; height:58px; border-radius:50%; background:rgba(212,175,55,0.15); border:1px solid var(--gold-primary); display:inline-flex; align-items:center; justify-content:center; color:var(--gold-primary); font-size:1.7rem; margin-bottom: 10px;">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+        <h3 style="color:#FFF; font-size:1.25rem; font-family: var(--font-luxury);">Cancelar Cita (+12 Horas)</h3>
+        <span style="color:var(--gold-light); font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; display:block; margin-top:2px;">Cancelación a Tiempo</span>
+      </div>
+
+      <div style="background:#14120C; border:1px solid var(--gold-border); border-radius:8px; padding:14px; margin-bottom: 18px; font-size:0.85rem; color:#DDD; line-height:1.5; text-align:left;">
+        <p style="margin-bottom:8px;">
+          Tienes más de 12 horas de anticipación. Puedes cancelar tu turno y se abrirá WhatsApp con el mensaje oficial para que la barbería gestione o reprograme tu cupo.
+        </p>
+      </div>
+
+      <div style="display:flex; gap:12px; justify-content:flex-end;">
+        <button type="button" class="btn-ticket-action" onclick="cerrarModalCancelarMas12h()" style="border-color:#555; color:#BBB;">
+          Volver
+        </button>
+        <button type="button" class="btn-ticket-action" id="btnEjecutarCancelacionMas12h" style="background:var(--gold-gradient); color:#000 !important; font-weight:800 !important; border:none;">
+          <i class="fa-brands fa-whatsapp" style="color:#000;"></i> Confirmar y Avisar
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Toast Notification -->

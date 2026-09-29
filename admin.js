@@ -713,14 +713,23 @@ function guardarServicio(e) {
   cerrarModalServicio();
 }
 
-function eliminarServicio(id) {
-  if (confirm("¿Estás seguro de eliminar este corte o servicio del catálogo?")) {
-    let servicios = getServicios();
-    servicios = servicios.filter(s => s.id !== id);
-    setServicios(servicios);
-    renderizarServiciosAdmin();
-    mostrarAdminToast("Servicio eliminado", "success");
-  }
+async function eliminarServicio(id) {
+  const ok = await mostrarConfirmacionVIP({
+    titulo: "¿Eliminar Servicio / Corte?",
+    mensaje: "¿Estás seguro de eliminar este corte del catálogo de clientes?",
+    tipo: "peligro",
+    btnConfirmarTexto: "Sí, Eliminar"
+  });
+  if (!ok) return;
+
+  let servicios = getServicios();
+  servicios = servicios.filter(s => s.id !== id);
+  setServicios(servicios);
+  renderizarServiciosAdmin();
+  mostrarAdminToast("Servicio eliminado con éxito", "info");
+
+  // Eliminar en la base de datos
+  fetch(`/api/servicios/${id}`, { method: "DELETE" }).catch(() => {});
 }
 
 // ==========================================================================
@@ -833,14 +842,23 @@ function guardarBarbero(e) {
   cerrarModalBarbero();
 }
 
-function eliminarBarbero(id) {
-  if (confirm("¿Estás seguro de eliminar a este barbero?")) {
-    let barberos = getBarberos();
-    barberos = barberos.filter(b => b.id !== id);
-    setBarberos(barberos);
-    renderizarBarberosAdmin();
-    mostrarAdminToast("Barbero eliminado", "success");
-  }
+async function eliminarBarbero(id) {
+  const ok = await mostrarConfirmacionVIP({
+    titulo: "¿Eliminar Maestro Barbero?",
+    mensaje: "¿Estás seguro de eliminar a este barbero del equipo? Los clientes ya no podrán seleccionarlo.",
+    tipo: "peligro",
+    btnConfirmarTexto: "Sí, Eliminar"
+  });
+  if (!ok) return;
+
+  let barberos = getBarberos();
+  barberos = barberos.filter(b => b.id !== id);
+  setBarberos(barberos);
+  renderizarBarberosAdmin();
+  mostrarAdminToast("Barbero eliminado con éxito", "info");
+
+  // Eliminar en la base de datos
+  fetch(`/api/barberos/${id}`, { method: "DELETE" }).catch(() => {});
 }
 
 // ==========================================================================
@@ -913,14 +931,20 @@ function guardarFotoGaleria(e) {
   mostrarAdminToast("¡Foto añadida a la galería con éxito!", "success");
 }
 
-function eliminarFotoGaleria(id) {
-  if (confirm("¿Deseas eliminar esta fotografía de la galería?")) {
-    let galeria = getGaleria();
-    galeria = galeria.filter(g => g.id !== id);
-    setGaleria(galeria);
-    renderizarGaleriaAdmin();
-    mostrarAdminToast("Fotografía eliminada de la galería", "success");
-  }
+async function eliminarFotoGaleria(id) {
+  const ok = await mostrarConfirmacionVIP({
+    titulo: "¿Eliminar Fotografía?",
+    mensaje: "¿Deseas eliminar esta fotografía de la galería de estilos?",
+    tipo: "peligro",
+    btnConfirmarTexto: "Sí, Eliminar"
+  });
+  if (!ok) return;
+
+  let galeria = getGaleria();
+  galeria = galeria.filter(g => g.id !== id);
+  setGaleria(galeria);
+  renderizarGaleriaAdmin();
+  mostrarAdminToast("Fotografía eliminada de la galería", "info");
 }
 
 // ==========================================================================
@@ -1098,18 +1122,24 @@ function exportarDatosJSON() {
   mostrarAdminToast("Copia de seguridad descargada correctamente.", "success");
 }
 
-function restaurarPorDefecto() {
-  if (confirm("⚠️ ¿Estás seguro de restablecer todos los servicios, barberos, cuentas y configuración a los valores iniciales? (Las citas registradas no se perderán)")) {
-    localStorage.setItem(STORAGE_KEYS.SERVICIOS, JSON.stringify(DEFAULTS.servicios));
-    localStorage.setItem(STORAGE_KEYS.BARBEROS, JSON.stringify(DEFAULTS.barberos));
-    localStorage.setItem(STORAGE_KEYS.GALERIA, JSON.stringify(DEFAULTS.galeria));
-    localStorage.setItem(STORAGE_KEYS.BANCOS, JSON.stringify(DEFAULTS.bancos));
-    localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(DEFAULTS.config));
-    localStorage.setItem(STORAGE_KEYS.ADMIN_PASS, DEFAULTS.adminPass);
+async function restaurarPorDefecto() {
+  const ok = await mostrarConfirmacionVIP({
+    titulo: "¿Restablecer Valores Iniciales?",
+    mensaje: "Se restablecerán servicios, barberos, bancos y configuración a los valores por defecto de la barbería. (Tus citas registradas no se perderán).",
+    tipo: "peligro",
+    btnConfirmarTexto: "Restablecer Todo"
+  });
+  if (!ok) return;
 
-    cargarDatosPanel();
-    mostrarAdminToast("Valores iniciales restaurados con éxito", "success");
-  }
+  localStorage.setItem(STORAGE_KEYS.SERVICIOS, JSON.stringify(DEFAULTS.servicios));
+  localStorage.setItem(STORAGE_KEYS.BARBEROS, JSON.stringify(DEFAULTS.barberos));
+  localStorage.setItem(STORAGE_KEYS.GALERIA, JSON.stringify(DEFAULTS.galeria));
+  localStorage.setItem(STORAGE_KEYS.BANCOS, JSON.stringify(DEFAULTS.bancos));
+  localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(DEFAULTS.config));
+  localStorage.setItem(STORAGE_KEYS.ADMIN_PASS, DEFAULTS.adminPass);
+
+  cargarDatosPanel();
+  mostrarAdminToast("Valores iniciales restaurados con éxito", "success");
 }
 
 // ==========================================================================
@@ -1156,6 +1186,104 @@ function mostrarAdminToast(mensaje, tipo = "info") {
   setTimeout(() => {
     toast.classList.remove("show");
   }, 3500);
+}
+
+// ==========================================================================
+// MODAL DE CONFIRMACIÓN VIP (REEMPLAZA CONFIRM / ALERT NATIVOS)
+// ==========================================================================
+function mostrarConfirmacionVIP({
+  titulo = "¿Estás seguro?",
+  mensaje = "Esta acción no se puede deshacer.",
+  tipo = "peligro",
+  btnConfirmarTexto = "Confirmar",
+  btnCancelarTexto = "Cancelar"
+}) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("modalConfirmacionVIP");
+    if (!modal) {
+      return resolve(window.confirm(`${titulo}\n\n${mensaje}`));
+    }
+    const iconElem = document.getElementById("modalConfirmIcon");
+    const titleElem = document.getElementById("modalConfirmTitle");
+    const msgElem = document.getElementById("modalConfirmMessage");
+    const btnOk = document.getElementById("btnModalConfirmOk");
+    const btnCancel = document.getElementById("btnModalConfirmCancel");
+
+    titleElem.innerText = titulo;
+    msgElem.innerText = mensaje;
+    btnOk.innerText = btnConfirmarTexto;
+    btnCancel.innerText = btnCancelarTexto;
+
+    if (tipo === "peligro") {
+      iconElem.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #E63946;"></i>';
+      btnOk.style.background = "linear-gradient(135deg, #E63946 0%, #B71C1C 100%)";
+      btnOk.style.color = "#FFFFFF";
+    } else {
+      iconElem.innerHTML = '<i class="fa-solid fa-circle-question" style="color: #D4AF37;"></i>';
+      btnOk.style.background = "var(--admin-gold-gradient)";
+      btnOk.style.color = "#000000";
+    }
+
+    modal.classList.add("open");
+
+    const cleanup = () => {
+      modal.classList.remove("open");
+      btnOk.removeEventListener("click", onOk);
+      btnCancel.removeEventListener("click", onCancel);
+    };
+
+    const onOk = () => {
+      cleanup();
+      resolve(true);
+    };
+
+    const onCancel = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    btnOk.addEventListener("click", onOk);
+    btnCancel.addEventListener("click", onCancel);
+  });
+}
+
+function mostrarAlertaVIP({
+  titulo = "Notificación",
+  mensaje = "",
+  tipo = "info"
+}) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("modalAlertaVIP");
+    if (!modal) {
+      window.alert(`${titulo}\n\n${mensaje}`);
+      return resolve();
+    }
+    const iconElem = document.getElementById("modalAlertaIcon");
+    const titleElem = document.getElementById("modalAlertaTitle");
+    const msgElem = document.getElementById("modalAlertaMessage");
+    const btnOk = document.getElementById("btnModalAlertaOk");
+
+    titleElem.innerText = titulo;
+    msgElem.innerText = mensaje;
+
+    if (tipo === "error") {
+      iconElem.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color: #E63946;"></i>';
+    } else if (tipo === "success") {
+      iconElem.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #25D366;"></i>';
+    } else {
+      iconElem.innerHTML = '<i class="fa-solid fa-circle-info" style="color: #D4AF37;"></i>';
+    }
+
+    modal.classList.add("open");
+
+    const onOk = () => {
+      modal.classList.remove("open");
+      btnOk.removeEventListener("click", onOk);
+      resolve();
+    };
+
+    btnOk.addEventListener("click", onOk);
+  });
 }
 
 function calcularHorasRestantesCita(fechaStr, horaStr) {
@@ -1281,14 +1409,20 @@ async function recargarQrBot() {
 }
 
 async function desvincularBot() {
-  if (confirm("¿Deseas cerrar sesión del bot de WhatsApp en este celular? Tendrás que escanear un nuevo código QR para volver a vincular.")) {
-    try {
-      await fetch(`${API_URL}/api/whatsapp/logout`, { method: "POST" });
-      mostrarAdminToast("Sesión de WhatsApp cerrada. Listo para nuevo QR.", "success");
-      setTimeout(consultarEstadoBot, 2000);
-    } catch (e) {
-      mostrarAdminToast("Error al desvincular", "error");
-    }
+  const ok = await mostrarConfirmacionVIP({
+    titulo: "¿Cerrar Sesión de WhatsApp?",
+    mensaje: "Se desconectará el bot en este celular. Para volver a activarlo deberás escanear un nuevo código QR.",
+    tipo: "peligro",
+    btnConfirmarTexto: "Cerrar Sesión"
+  });
+  if (!ok) return;
+
+  try {
+    await fetch(`${API_URL}/api/whatsapp/logout`, { method: "POST" });
+    mostrarAdminToast("Sesión de WhatsApp cerrada. Listo para nuevo QR.", "success");
+    setTimeout(consultarEstadoBot, 2000);
+  } catch (e) {
+    mostrarAdminToast("Error al desvincular", "error");
   }
 }
 

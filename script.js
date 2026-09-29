@@ -1151,6 +1151,50 @@ function guardarReagendamiento(e) {
   }
 }
 
+let citaParaCancelarMas12hIdx = null;
+
+function cerrarModalCancelarMas12h() {
+  const modal = document.getElementById("modalCancelarMas12h");
+  if (modal) modal.classList.remove("open");
+  citaParaCancelarMas12hIdx = null;
+}
+
+function ejecutarCancelacionMas12h() {
+  if (citaParaCancelarMas12hIdx === null) return;
+  try {
+    const citas = JSON.parse(localStorage.getItem("imperial_citas") || "[]");
+    const cita = citas[citaParaCancelarMas12hIdx];
+    if (!cita) return;
+
+    cerrarModalCancelarMas12h();
+
+    cita.estado = "Cancelada (+12h)";
+    localStorage.setItem("imperial_citas", JSON.stringify(citas));
+    sincronizarCitaConServidor(cita);
+    actualizarContadorCitas();
+    abrirMisCitasModal();
+    mostrarToast("Cita cancelada con anticipación.");
+
+    const partes = cita.fecha ? cita.fecha.split("-") : ["--", "--", "----"];
+    const fechaBonita = `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+    const msg = [
+      `${EMOJIS.BARBER} *CANCELACI\u00D3N CON ANTICIPACI\u00D3N (+12H) - RA\u00CDCESS BARBER SHOP* ${EMOJIS.BARBER}`,
+      `${EMOJIS.TICKET} *C\u00F3digo de Cita:* #${cita.id}`,
+      `${EMOJIS.USER} *Cliente:* ${cita.cliente.nombre}`,
+      `${EMOJIS.SCISSORS} *Servicio:* ${cita.servicio}`,
+      `${EMOJIS.CALENDAR} *Fecha:* ${fechaBonita} a las ${cita.hora}`,
+      `${EMOJIS.LOCK} *Anticipo 50%:* ${formatoCOP(cita.anticipoPagado)}`,
+      "",
+      "Aviso que cancelo mi turno con m\u00E1s de 12 horas de anticipaci\u00F3n seg\u00FAn la pol\u00EDtica. Por favor ind\u00EDquenme para reprogramar o resolver mi turno."
+    ].join("\n");
+
+    window.open(`https://wa.me/${WHATSAPP_BARBERIA}?text=${encodeURIComponent(msg)}`, "_blank");
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 // Proceso de Cancelación (Evalúa si >=12h o <12h)
 function solicitarCancelacion(index) {
   try {
@@ -1161,30 +1205,15 @@ function solicitarCancelacion(index) {
     const diffHoras = calcularHorasRestantesCita(cita.fecha, cita.hora);
 
     if (diffHoras >= 12) {
-      // Caso A: Más de 12 horas -> Puede cancelar normalmente
-      if (confirm(`Tienes más de 12 horas de anticipación (~${Math.round(diffHoras)}h restantes).\n\n¿Deseas cancelar tu cita #${cita.id}?\nSe abrirá WhatsApp para que la barbería gestione tu turno.`)) {
-        cita.estado = "Cancelada (+12h)";
-        localStorage.setItem("imperial_citas", JSON.stringify(citas));
-        sincronizarCitaConServidor(cita);
-        actualizarContadorCitas();
-        abrirMisCitasModal();
-        mostrarToast("Cita cancelada con anticipación.");
-
-        const partes = cita.fecha ? cita.fecha.split("-") : ["--", "--", "----"];
-        const fechaBonita = `${partes[2]}/${partes[1]}/${partes[0]}`;
-
-        const msg = [
-          `${EMOJIS.BARBER} *CANCELACI\u00D3N CON ANTICIPACI\u00D3N (+12H) - RA\u00CDCESS BARBER SHOP* ${EMOJIS.BARBER}`,
-          `${EMOJIS.TICKET} *C\u00F3digo de Cita:* #${cita.id}`,
-          `${EMOJIS.USER} *Cliente:* ${cita.cliente.nombre}`,
-          `${EMOJIS.SCISSORS} *Servicio:* ${cita.servicio}`,
-          `${EMOJIS.CALENDAR} *Fecha:* ${fechaBonita} a las ${cita.hora}`,
-          `${EMOJIS.LOCK} *Anticipo 50%:* ${formatoCOP(cita.anticipoPagado)}`,
-          "",
-          "Aviso que cancelo mi turno con m\u00E1s de 12 horas de anticipaci\u00F3n seg\u00FAn la pol\u00EDtica. Por favor ind\u00EDquenme para reprogramar o resolver mi turno."
-        ].join("\n");
-
-        window.open(`https://wa.me/${WHATSAPP_BARBERIA}?text=${encodeURIComponent(msg)}`, "_blank");
+      // Caso A: Más de 12 horas -> Abre modal VIP de confirmación elegante
+      citaParaCancelarMas12hIdx = index;
+      const modal = document.getElementById("modalCancelarMas12h");
+      if (modal) {
+        modal.classList.add("open");
+        const btnEjecutar = document.getElementById("btnEjecutarCancelacionMas12h");
+        if (btnEjecutar) {
+          btnEjecutar.onclick = ejecutarCancelacionMas12h;
+        }
       }
     } else {
       // Caso B: Menos de 12 horas -> Pierde el 50% de anticipo
